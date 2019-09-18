@@ -108,9 +108,9 @@ fun whichRookThreatens(
     rookX1: Int, rookY1: Int,
     rookX2: Int, rookY2: Int
 ): Int = when {
-    ((kingX == rookX1) or (kingY == rookY1)) and ((kingX == rookX2) or (kingY == rookY2)) -> 3
-    (kingX == rookX1) or (kingY == rookY1) -> 1
-    (kingX == rookX2) or (kingY == rookY2) -> 2
+    ((kingX == rookX1) || (kingY == rookY1)) && ((kingX == rookX2) || (kingY == rookY2)) -> 3
+    (kingX == rookX1) || (kingY == rookY1) -> 1
+    (kingX == rookX2) || (kingY == rookY2) -> 2
     else -> 0
 }
 
@@ -129,9 +129,9 @@ fun rookOrBishopThreatens(
     rookX: Int, rookY: Int,
     bishopX: Int, bishopY: Int
 ): Int = when {
-    ((kingX == rookX) or (kingY == rookY)) and (abs(kingX - bishopX) == abs(kingY - bishopY)) -> 3
+    ((kingX == rookX) || (kingY == rookY)) && (abs(kingX - bishopX) == abs(kingY - bishopY)) -> 3
     (abs(kingX - bishopX)) == (abs(kingY - bishopY)) -> 2
-    (kingX == rookX) or (kingY == rookY) -> 1
+    (kingX == rookX) || (kingY == rookY) -> 1
     else -> 0
 }
 
@@ -148,9 +148,9 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
     val b1 = (sqr(a) + sqr(c) - sqr(b)) / 2.0 * a * c
     val c1 = (sqr(a) + sqr(b) - sqr(c)) / 2.0 * b * a
     return when {
-        (a + b <= c) or (a + c <= b) or (b + c <= a) -> -1
-        (a1 == 0.0) or (b1 == 0.0) or (c1 == 0.0) -> 1
-        (a1 < 0.0) or (b1 < 0.0) or (c1 < 0.0) -> 2
+        (a + b <= c) || (a + c <= b) || (b + c <= a) -> -1
+        (a1 == 0.0) || (b1 == 0.0) || (c1 == 0.0) -> 1
+        (a1 < 0.0) || (b1 < 0.0) || (c1 < 0.0) -> 2
         else -> 0
     }
 }
@@ -164,9 +164,9 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
  * Если пересечения нет, вернуть -1.
  */
 fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int = when {
-    (c <= a) and (b <= d) -> b - a
-    (a <= c) and (d <= b) -> d - c
-    ((d > b) and (c > b)) or ((b > d) and (a > d)) -> -1
-    (d >= b) and (b >= c) -> b - c
+    (c <= a) && (b <= d) -> b - a
+    (a <= c) && (d <= b) -> d - c
+    ((d > b) && (c > b)) || ((b > d) && (a > d)) -> -1
+    (d >= b) && (b >= c) -> b - c
     else -> d - a
 }

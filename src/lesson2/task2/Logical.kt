@@ -31,7 +31,7 @@ fun isNumberHappy(number: Int): Boolean = number / 1000 + number / 100 % 10 == n
  * Считать, что ферзи не могут загораживать друг друга.
  */
 fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean =
-    (x1 == x2) or (y1 == y2) or (kotlin.math.abs(x1 - x2) == kotlin.math.abs(y1 - y2))
+    (x1 == x2) || (y1 == y2) || (kotlin.math.abs(x1 - x2) == kotlin.math.abs(y1 - y2))
 
 
 /**
@@ -40,7 +40,15 @@ fun queenThreatens(x1: Int, y1: Int, x2: Int, y2: Int): Boolean =
  * Дан номер месяца (от 1 до 12 включительно) и год (положительный).
  * Вернуть число дней в этом месяце этого года по григорианскому календарю.
  */
-fun daysInMonth(month: Int, year: Int): Int = YearMonth.of(year, month).lengthOfMonth()
+fun daysInMonth(month: Int, year: Int): Int {
+    return when {
+        (month == 1) || (month == 3) || (month == 5) || (month == 7) || (month == 8) || (month == 10) || (month == 12) -> 31
+        (year % 400 == 0) && (month == 2) -> 29
+        ((year % 4 != 0) || (year % 100 == 0)) && (month == 2)  -> 28
+        (year % 4 == 0) && (month == 2) -> 29
+        else -> 30
+    }
+}
 
 /**
  * Средняя
@@ -63,5 +71,5 @@ fun circleInside(
  * кирпич 4 х 4 х 4 пройдёт через отверстие 4 х 4.
  * Вернуть true, если кирпич пройдёт
  */
-fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean = ((a <= r) and (b <= s)) or ((b <= r) and (a <= s)) or
-        ((a <= r) and (c <= s)) or ((c <= r) and (a <= s)) or ((b <= r) and (c <= s)) or ((c <= r) and (b <= s))
+fun brickPasses(a: Int, b: Int, c: Int, r: Int, s: Int): Boolean = ((a <= r) && (b <= s)) || ((b <= r) && (a <= s)) ||
+        ((a <= r) && (c <= s)) || ((c <= r) && (a <= s)) || ((b <= r) && (c <= s)) || ((c <= r) && (b <= s))
