@@ -122,42 +122,25 @@ fun lcm(m: Int, n: Int): Int {
  *
  * Для заданного числа n > 1 найти минимальный делитель, превышающий 1
  */
-fun minDivisor(n: Int): Int {
-    when {
-        isPrime(n) -> return n
-        else -> {
-            var j = 0
-            for (i in 2..(n / 2)) {
-                if (n % i == 0) {
-                    j = i
-                    break
-                }
+fun minDivisor(n: Int): Int =
+    if (isPrime(n)) n
+    else {
+        var j = 0
+        for (i in 2..(n / 2))
+            if (n % i == 0) {
+                j = i
+                break
             }
-            return j
-        }
+        j
     }
-}
+
 
 /**
  * Простая
  *
  * Для заданного числа n > 1 найти максимальный делитель, меньший n
  */
-fun maxDivisor(n: Int): Int {
-    when {
-        isPrime(n) -> return 1
-        else -> {
-            var j = 0
-            for (i in (n / 2) downTo 1) {
-                if (n % i == 0) {
-                    j = i
-                    break
-                }
-            }
-            return j
-        }
-    }
-}
+fun maxDivisor(n: Int): Int = n / minDivisor(n)
 
 
 /**
@@ -168,18 +151,13 @@ fun maxDivisor(n: Int): Int {
  * Например, 25 и 49 взаимно простые, а 6 и 8 -- нет.
  */
 fun isCoPrime(m: Int, n: Int): Boolean {
-    when {
-        isPrime(m) && isPrime(n) && (m % n != 0) && (n % m != 0) -> return true
-        else -> {
-            var a = m
-            var b = n
-            while (b != a) {
-                if (a > b) a -= b else b -= a
-            }
-            return (a == 1)
-        }
-    }
+    if ((isPrime(m)) && (isPrime(n)) && (m % n != 0) && (n % m != 0)) return true
+    var a = m
+    var b = n
+    while (b != a) if (a > b) a -= b else b -= a
+    return (a == 1)
 }
+
 
 /**
  * Простая
@@ -238,7 +216,7 @@ fun collatzSteps(x: Int): Int {
 
 
 fun sin(x: Double, eps: Double): Double {
-    var a = x % (2 * PI)
+    val a = x % (2 * PI)
     var y = x % (2 * PI)
     var n = 2
     var sin = 0.0
@@ -261,7 +239,7 @@ fun sin(x: Double, eps: Double): Double {
  * Использовать kotlin.math.cos и другие стандартные реализации функции косинуса в этой задаче запрещается.
  */
 fun cos(x: Double, eps: Double): Double {
-    var a = x % (2 * PI)
+    val a = x % (2 * PI)
     var y = (-1) * a * a / 2
     var n = 4
     var cos = 1.0
@@ -313,7 +291,7 @@ fun isPalindrome(n: Int): Boolean = (revert(n) == n)
  */
 fun hasDifferentDigits(n: Int): Boolean {
     var c = n / 10
-    var a = n % 10
+    val a = n % 10
     var b = a
     while (c > 0) {
         b = c % 10
