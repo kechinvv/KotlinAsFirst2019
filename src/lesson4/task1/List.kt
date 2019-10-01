@@ -447,7 +447,7 @@ fun russian(n: Int): String {
         thousands % 100 in 20..99 -> b += a[18 + thousands % 100 / 10] + a[37 + thousands % 10]
     }
     if (thousands != 0) when {
-        (thousands % 5 == 0) or (thousands % 10 in 6..9) -> b += "тысяч "
+        (thousands % 5 == 0) or (thousands % 10 in 6..9) or (thousands % 100 in 6..19) -> b += "тысяч "
         thousands % 5 == 1 -> b += "тысяча "
         else -> b += "тысячи "
     }
