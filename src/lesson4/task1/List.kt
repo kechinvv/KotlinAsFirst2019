@@ -241,10 +241,10 @@ fun factorizeToString(n: Int): String =
 fun convert(n: Int, base: Int): List<Int> {
     var f = n
     val out = mutableListOf<Int>()
-    while (f != 0) {
+    do {
         out.add(f % base)
         f /= base
-    }
+    } while(f != 0 )
     return out.reversed()
 }
 
@@ -263,13 +263,13 @@ fun convertToString(n: Int, base: Int): String {
     var f = n
     var c = 0
     var out: String = ""
-    while (f != 0) {
+    do {
         c = f % base
         if (c < 10)
             out += ("$c") else
             out += (c + 87).toChar()
         f /= base
-    }
+    } while (f != 0)
     return out.reversed()
 }
 
@@ -390,16 +390,16 @@ fun roman(n: Int): String {
 fun russian(n: Int): String {
     var b = ""
     val a = listOf<String>(
-        "один", //0
-        "два",  //1
-        "три",  //2
-        "четыре", //3
-        "пять", //4
-        "шесть", //5
-        "семь",  //6
-        "восемь", //7
-        "девять", //8
-        "десять", //9
+        "один ", //0
+        "два ",  //1
+        "три ",  //2
+        "четыре ", //3
+        "пять ", //4
+        "шесть ", //5
+        "семь ",  //6
+        "восемь ", //7
+        "девять ", //8
+        "десять ", //9
         "одиннадцать ", //10
         "двенадцать ", //11
         "тринадцать ", //12
