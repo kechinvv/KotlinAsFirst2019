@@ -426,24 +426,25 @@ fun russian(n: Int): String {
         "шестьсот ",  //32
         "семьсот ",  //33
         "восемьсот ",  //34
-        "девятьсот ",  //35
-        "одна ",  //36
-        "две ", //37
-        "три ",  //38
-        "четыре ", //39
-        "пять ", //40
-        "шесть ", //41
-        "семь ",  //42
-        "восемь ", //43
-        "девять " //44
+        "девятьсот ", //35
+        "", //36
+        "одна ",  //37
+        "две ", //38
+        "три ",  //39
+        "четыре ", //40
+        "пять ", //41
+        "шесть ", //42
+        "семь ",  //43
+        "восемь ", //44
+        "девять " //45
     )
     val thousands = n / 1000
     val hundreds = n % 1000
     if (thousands / 100 != 0) b += a[27 + thousands / 100]
     if (thousands % 100 != 0) when {
-        thousands % 100 in 1..2 -> b += a[36 + thousands % 100]
+        thousands % 100 in 1..2 -> b += a[37 + thousands % 100]
         thousands % 100 in 3..19 -> b += a[thousands % 100]
-        thousands % 100 in 20..99 -> b += a[18 + thousands % 100 / 10] + a[36 + thousands % 10]
+        thousands % 100 in 20..99 -> b += a[18 + thousands % 100 / 10] + a[37 + thousands % 10]
     }
     if (thousands != 0) when {
         (thousands % 5 == 0) or (thousands % 10 in 6..9) -> b += "тысяч "
