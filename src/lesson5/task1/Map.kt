@@ -2,7 +2,9 @@
 
 package lesson5.task1
 
+import lesson4.task1.mean
 import lesson8.task1.findNearestCirclePair
+import sun.security.ec.point.ProjectivePoint
 import kotlin.math.pow
 
 /**
@@ -189,10 +191,16 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
  *     -> mapOf("MSFT" to 150.0, "NFLX" to 40.0)
  */
 fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
-    var c = mutableMapOf<String, Double>()
-    for ((a, b) in stockPrices) if (c[a] == null) c[a] = b
-    else c[a] = (c[a]!! + b) / 2
-    return c
+    val c = mutableMapOf<String, MutableList<Double>>()
+    val res = mutableMapOf<String, Double>()
+    var list = mutableListOf<Double>()
+    for ((a, b) in stockPrices) if (c[a] == null) {
+        list.add(b)
+        c[a] = list
+        list = mutableListOf()
+    } else c[a]!!.add(b)
+    for ((a, b) in c) res[a] = mean(b)
+    return res
 }
 
 /**
@@ -212,13 +220,12 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  */
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
     var min = 2.0.pow(64)
-    var out = ""
+    var out = "-1"
     for ((k, a) in stuff) if (a.first == kind) if (a.second < min) {
         min = a.second
         out = k
     }
-    if (out == "") return null
-    else return out
+    return if (out != "-1") out else null
 }
 
 /**
@@ -232,7 +239,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
     var w = word
-    for (i in chars.indices) w = w.filter { it != chars[i] }
+    for (i in chars.indices) w = w.filter { it !in listOf<Char>(chars[i], chars[i] + 32, chars[i] - 32) }
     return (w == "")
 }
 
@@ -375,8 +382,11 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
     var t = 0
     var c = 0
     var num = capacity
-    val treas = treasures.toMutableMap()
-    treas.toList().sortedBy { (k, v) -> v.first }.toMap()
+    var treast = mutableMapOf<Int, String>()
+    val treas = mutableMapOf<String, Pair<Int, Int>>()
+    for ((k, v) in treasures) treast[v.first] = k
+    treast = treast.toSortedMap()
+    for ((k, v) in treast) treas[v] = treasures[v]!!
     for ((k, v) in treas) if (num - v.first >= 0) {
         res.add(k)
         num -= v.first
