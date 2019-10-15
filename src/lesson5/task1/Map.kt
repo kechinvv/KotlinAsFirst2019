@@ -3,8 +3,6 @@
 package lesson5.task1
 
 import lesson4.task1.mean
-import lesson8.task1.findNearestCirclePair
-import sun.security.ec.point.ProjectivePoint
 import kotlin.math.pow
 
 /**
