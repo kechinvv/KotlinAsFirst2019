@@ -139,11 +139,9 @@ fun mean(list: List<Double>): Double = if (list.size != 0)
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun center(list: MutableList<Double>): MutableList<Double> {
-    if (list.size != 0) {
-        val a = mean(list)
-        for (i in 0 until list.size)
-            list[i] -= a
-    }
+    val a = mean(list)
+    for (i in 0 until list.size)
+        list[i] -= a
     return list
 }
 
@@ -439,21 +437,21 @@ fun russian(n: Int): String {
     if (thousands / 100 != 0) b += a[27 + thousands / 100]
     if (thousands % 100 != 0)
         when {
-        thousands % 100 in 1..2 -> b += a[37 + thousands % 100]
-        thousands % 100 in 3..19 -> b += a[thousands % 100]
-        thousands % 100 in 20..99 -> b += a[18 + thousands % 100 / 10] + a[37 + thousands % 10]
-    }
+            thousands % 100 in 1..2 -> b += a[37 + thousands % 100]
+            thousands % 100 in 3..19 -> b += a[thousands % 100]
+            thousands % 100 in 20..99 -> b += a[18 + thousands % 100 / 10] + a[37 + thousands % 10]
+        }
     if (thousands != 0)
         when {
-        (thousands % 5 == 0) or (thousands % 10 in 6..9) or (thousands % 100 in 6..19) -> b += "тысяч "
-        thousands % 5 == 1 -> b += "тысяча "
-        else -> b += "тысячи "
-    }
+            (thousands % 5 == 0) or (thousands % 10 in 6..9) or (thousands % 100 in 6..19) -> b += "тысяч "
+            thousands % 5 == 1 -> b += "тысяча "
+            else -> b += "тысячи "
+        }
     if (hundreds / 100 != 0) b += a[27 + hundreds / 100]
     if (hundreds % 100 != 0)
         when {
-        hundreds % 100 in 1..19 -> b += a[hundreds % 100]
-        hundreds % 100 in 20..99 -> b += a[18 + hundreds % 100 / 10] + a[hundreds % 10]
-    }
+            hundreds % 100 in 1..19 -> b += a[hundreds % 100]
+            hundreds % 100 in 20..99 -> b += a[18 + hundreds % 100 / 10] + a[hundreds % 10]
+        }
     return b.trim()
 }
