@@ -413,10 +413,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
             sumt = 0
             for (j in 0 until res.size) {
                 for (i in res)
-                    if ((treas[k]!!.second > sumt + treas[i]!!.second) && (k !in res) &&
-                        (num - (weight + treas[i]!!.first) + treas[k]!!.first <= capacity) && (treas[i]!!.second > t) &&
-                        (i !in del)
-                    ) {
+                    if ((treas[k]!!.second > sumt + treas[i]!!.second) && (k !in res)  && (i !in del)) {
                         t = treas[i]!!.second
                         p = i
                     }
@@ -428,7 +425,7 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
                     t = -1
                 }
             }
-            if (del.size != 0) {
+            if ((del.size != 0) && (num - weight + treas[k]!!.first <= capacity)) {
                 res.removeAll(del)
                 res.add(k)
                 num = num - weight + treas[k]!!.first
