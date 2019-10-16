@@ -3,7 +3,6 @@
 package lesson5.task1
 
 import lesson4.task1.mean
-import sun.font.CharToGlyphMapper
 import kotlin.math.pow
 
 /**
@@ -286,7 +285,7 @@ fun hasAnagrams(words: List<String>): Boolean {
     val word = words.toMutableSet()
     for (i in word)
         for (j in word)
-            if ((i != j) && (j.toSet().intersect(i.toSet()) == j.toSet())) {
+            if (((i != j) && (j.toSet().intersect(i.toSet()) == j.toSet())) || (word.size < words.size)) {
                 n = 1
                 break
             }
@@ -388,8 +387,8 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  *   ) -> emptySet()
  */
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
-    val res: MutableSet<String> = mutableSetOf()
-    var del = mutableListOf<String>()
+    val res = mutableSetOf<String>()
+    var del = mutableSetOf<String>()
     var sumt = 0
     var weight = 0
     var p = ""
@@ -406,35 +405,41 @@ fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<Strin
             num -= v.first
         } else break
     num = capacity - num
-    for ((k, v) in treas) {
-        t = -1
-        p = ""
-        weight = 0
-        sumt = 0
-        for (j in 0 until res.size) {
-            for (i in res)
-                if ((treas[k]!!.second > sumt + treas[i]!!.second) && (k !in res) &&
-                    (num - (weight + treas[i]!!.first) + treas[k]!!.first <= capacity) && (treas[i]!!.second > t) &&
-                    (i !in del)
-                ) {
-                    t = treas[i]!!.second
-                    p = i
+    if (res != emptySet<String>())
+        for ((k, v) in treas) {
+            t = -1
+            p = "             "
+            weight = 0
+            sumt = 0
+            for (j in 0 until res.size) {
+                for (i in res)
+                    if ((treas[k]!!.second > sumt + treas[i]!!.second) && (k !in res) &&
+                        (num - (weight + treas[i]!!.first) + treas[k]!!.first <= capacity) && (treas[i]!!.second > t) &&
+                        (i !in del)
+                    ) {
+                        t = treas[i]!!.second
+                        p = i
+                    }
+                if (t != -1) {
+                    del.add(p)
+                    weight += treas[p]!!.first
+                    p = ""
+                    sumt += t
+                    t = -1
                 }
-            if (t != -1) {
-                del.add(p)
-                weight += treas[p]!!.first
-                p = ""
-                sumt += t
-                t = 0
             }
+            if (del.size != 0) {
+                res.removeAll(del)
+                res.add(k)
+                num = num - weight + treas[k]!!.first
+                del = mutableSetOf()
+            }
+            for ((m, l) in treas)
+                if ((capacity - num - l.first >= 0) && (m !in res)) {
+                    res.add(m)
+                    num += l.first
+                } else break
         }
-        if (del != emptyList<String>()) {
-            res.removeAll(del)
-            res.add(k)
-            num = num - weight + treas[k]!!.first
-            del = mutableListOf()
-        }
-    }
     return res
 }
 
