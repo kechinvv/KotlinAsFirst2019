@@ -176,7 +176,6 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
     for ((k, v) in mapB)
         if (c[k] == null) c[k] = v
         else if (c[k] != mapB[k]) c[k] += ", $v"
-        else continue
     return c
 }
 
@@ -220,18 +219,14 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  *   ) -> "Мария"
  */
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
-    var min = -1.0
+    var min = Double.POSITIVE_INFINITY
     var out: String? = null
     for ((k, a) in stuff)
-        if (a.first == kind) {
-            if (min == -1.0) {
-                min = a.second
-                out = k
-            } else if (a.second < min) {
+        if (a.first == kind)
+            if (a.second < min) {
                 min = a.second
                 out = k
             }
-        }
     return out
 }
 
@@ -245,10 +240,9 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean {
-    val words = word.toSet()
-    val ch = chars.toMutableSet()
-    return ((ch.map { if (it.isLowerCase()) it.toUpperCase() else it.toLowerCase() }
-        .union(chars.toSet())).intersect(words) == words)
+    val words = word.toUpperCase().toSet()
+    val ch = chars.toSet().map { it.toUpperCase() }
+    return (ch.intersect(words) == words)
 }
 
 /**
@@ -280,17 +274,8 @@ fun extractRepeats(list: List<String>): Map<String, Int> {
  * Например:
  *   hasAnagrams(listOf("тор", "свет", "рот")) -> true
  */
-fun hasAnagrams(words: List<String>): Boolean {
-    var n = 0
-    val word = words.toMutableSet()
-    for (i in word)
-        for (j in word)
-            if (((i != j) && (j.toSet().intersect(i.toSet()) == j.toSet())) || (word.size < words.size)) {
-                n = 1
-                break
-            }
-    return (n == 1)
-}
+fun hasAnagrams(words: List<String>): Boolean = words.size > (words.map { it.toSet() }.toSet()).size
+
 
 /**
  * Сложная
@@ -351,16 +336,14 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
  */
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
     var res = -1 to -1
-    var map = mutableMapOf<Int, Int>()
-    for (i in 0..(list.size - 2)) {
-        for (j in (i + 1) until list.size) {
-            map[1] = list[i] + list[j]
-            if (map[1] == number) {
-                res = i to j
-                break
-            }
-        }
-        if (map[1] == number) break
+    val map = mutableMapOf<Int, List<Int>>()
+    for (i in list.indices) if (map[list[i]] == null) map[list[i]] = listOf(i)
+    else if (map[list[i]]!!.size == 1) map[list[i]] = map[list[i]]!! + i
+    for ((k, v) in map) if (number - k in map) {
+        if (number - k == k) {
+            if (map[k]!!.size == 2) res = map[k]!![0] to map[k]!![1]
+        } else res = map[k]!![0] to map[number - k]!![0]
+        break
     }
     return res
 }
@@ -388,55 +371,28 @@ fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
  */
 fun bagPacking(treasures: Map<String, Pair<Int, Int>>, capacity: Int): Set<String> {
     val res = mutableSetOf<String>()
-    var del = mutableSetOf<String>()
-    var sumt = 0
-    var weight = 0
-    var p = ""
-    var t = -1
-    var num = capacity
-    var treast = mutableMapOf<String, Int>()
-    val treas = mutableMapOf<String, Pair<Int, Int>>()
-    for ((k, v) in treasures) treast[k] = v.first
-    treast = treast.toList().sortedBy { it.second }.toMap().toMutableMap()
-    for ((k, v) in treast) treas[k] = treasures[k]!!
-    for ((k, v) in treas)
-        if (num - v.first >= 0) {
-            res.add(k)
-            num -= v.first
-        } else break
-    num = capacity - num
-    if (res != emptySet<String>())
-        for ((k, v) in treas) {
-            t = -1
-            p = "             "
-            weight = 0
-            sumt = 0
-            for (j in 0 until res.size) {
-                for (i in res)
-                    if ((treas[k]!!.second > sumt + treas[i]!!.second) && (k !in res)  && (i !in del)) {
-                        t = treas[i]!!.second
-                        p = i
-                    }
-                if (t != -1) {
-                    del.add(p)
-                    weight += treas[p]!!.first
-                    p = ""
-                    sumt += t
-                    t = -1
-                }
+    val a = Array((treasures.size + 1), { Array((capacity + 1), { 0 }) })
+    val map = mutableMapOf<Int, String>()
+    var count = 1
+    for ((k, v) in treasures) {
+        map[count] = k
+        count++
+    }
+    for (j in 1..map.size)
+        for (i in 1..capacity)
+            if ((i >= treasures[map[j]]!!.first) && (a[j - 1][i] < a[j - 1][i - treasures[map[j]]!!.first] + treasures[map[j]]!!.second))
+                a[j][i] = a[j - 1][i - treasures[map[j]]!!.first] + treasures[map[j]]!!.second
+            else a[j][i] = a[j - 1][i]
+    var weight = capacity
+    var key = map.size
+    if (a[map.size][capacity] != 0)
+        while (a[key][weight] != 0) {
+            if (a[key - 1][weight] == a[key][weight]) key--
+            else {
+                res.add(map[key]!!)
+                weight -= treasures[map[key]]!!.first
+                key--
             }
-            if ((del.size != 0) && (num - weight + treas[k]!!.first <= capacity)) {
-                res.removeAll(del)
-                res.add(k)
-                num = num - weight + treas[k]!!.first
-                del = mutableSetOf()
-            }
-            for ((m, l) in treas)
-                if ((capacity - num - l.first >= 0) && (m !in res)) {
-                    res.add(m)
-                    num += l.first
-                } else break
         }
     return res
 }
-
