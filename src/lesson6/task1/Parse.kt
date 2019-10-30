@@ -83,7 +83,7 @@ fun dateStrToDigit(str: String): String {
     try {
         val time = str.split(" ")
         if ((time[0].toInt() <= daysInMonth(month[time[1]]!!, time[2].toInt())) && (time.size < 4))
-            res = String.format("%02d.%02d.%04d", time[0].toInt(), month[time[1]], time[2].toInt())
+            res = String.format("%02d.%02d.%d", time[0].toInt(), month[time[1]], time[2].toInt())
     } catch (e: NullPointerException) {
         return ("")
     } catch (e: NumberFormatException) {
@@ -114,7 +114,7 @@ fun dateDigitToStr(digital: String): String {
     var res = ""
     try {
         if ((time[0].toInt() <= daysInMonth(time[1].toInt(), time[2].toInt())) && (time.size < 4))
-            res = String.format("%d %s %04d", time[0].toInt(), month[time[1].toInt()]!!, time[2].toInt())
+            res = String.format("%d %s %d", time[0].toInt(), month[time[1].toInt()]!!, time[2].toInt())
     } catch (e: NullPointerException) {
         return ("")
     } catch (e: NumberFormatException) {
@@ -197,8 +197,8 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    if ("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex().replace(expression, "") != "")
-        throw IllegalArgumentException()
+    if (("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex().find(expression) == null) or ("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex()
+            .replace(expression, "") != "")) throw IllegalArgumentException()
     var str = "( \\+)".toRegex().replace(expression, "")
     str = "(- )".toRegex().replace(str, "-")
     val res = str.split(" ")
@@ -215,7 +215,7 @@ fun plusMinus(expression: String): Int {
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
 fun firstDuplicateIndex(str: String): Int {
-    val a = "(\\W+) \\1".toRegex().find(str.toLowerCase())
+    val a = "(.+) \\1".toRegex().find(str.toLowerCase())
     return a?.range?.first ?: -1
 }
 
@@ -395,7 +395,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             j[0] == '+' -> res[n]++
             j[0] == '-' -> res[n]--
         }
-        if (n > cells) throw IllegalStateException()
+        if ((n > cells - 1) or (n < 0)) throw IllegalStateException()
         j = "^\\W".toRegex().replace(j, "")
         k = 0
     }
