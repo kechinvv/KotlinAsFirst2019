@@ -198,7 +198,8 @@ fun bestHighJump(jumps: String): Int {
  */
 fun plusMinus(expression: String): Int {
     if (("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex().find(expression) == null) or ("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex()
-            .replace(expression, "") != "")) throw IllegalArgumentException()
+            .replace(expression, "") != "")
+    ) throw IllegalArgumentException()
     var str = "( \\+)".toRegex().replace(expression, "")
     str = "(- )".toRegex().replace(str, "-")
     val res = str.split(" ")
@@ -215,7 +216,7 @@ fun plusMinus(expression: String): Int {
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
 fun firstDuplicateIndex(str: String): Int {
-    val a = "(.+) \\1".toRegex().find(str.toLowerCase())
+    val a = "([^ ]+) \\1".toRegex().find(str.toLowerCase())
     return a?.range?.first ?: -1
 }
 
@@ -333,71 +334,73 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     }
     if (k != 0) throw IllegalArgumentException()
     var res = mutableListOf<Int>()
-    for (i in 0 until cells) res.add(0)
-    var n = cells / 2
-    var i = 0
-    var j = commands
-    fun circle(
-        counter: Int,
-        res1: MutableList<Int>,
-        j1: String,
-        n1: Int,
-        i1: Int
-    ): Triple<Int, Int, MutableList<Int>> {
-        var ii = i1
-        var nn = n1
-        var f = 0
-        var ress = res1
-        var count = counter + 1
-        while (ii != limit) {
-            ii++
-            when {
-                j1[count] == '[' -> if (ress[nn] != 0) {
-                    val gg = circle(count++, ress, j1, nn, ii)
-                    ress = gg.third
-                    ii = gg.first
-                    nn = gg.second
-                    do count++ while (j1[count] != ']')
-                } else do count++ while (j1[count] != ']')
-                j1[count] == ']' -> if (ress[nn] != 0) count = counter else f = 1
-                j1[count] == '<' -> nn--
-                j1[count] == '>' -> nn++
-                j1[count] == '+' -> ress[nn] = ress[nn] + 1
-                j1[count] == '-' -> ress[nn] = ress[nn] - 1
+    try {
+        for (i in 0 until cells) res.add(0)
+        var n = cells / 2
+        var i = 0
+        var j = commands
+        fun circle(
+            counter: Int,
+            res1: MutableList<Int>,
+            j1: String,
+            n1: Int,
+            i1: Int
+        ): Triple<Int, Int, MutableList<Int>> {
+            var ii = i1
+            var nn = n1
+            var f = 0
+            var ress = res1
+            var count = counter + 1
+            while (ii != limit) {
+                ii++
+                when {
+                    j1[count] == '[' -> if (ress[nn] != 0) {
+                        val gg = circle(count++, ress, j1, nn, ii)
+                        ress = gg.third
+                        ii = gg.first
+                        nn = gg.second
+                        do count++ while (j1[count] != ']')
+                    } else do count++ while (j1[count] != ']')
+                    j1[count] == ']' -> if (ress[nn] != 0) count = counter else f = 1
+                    j1[count] == '<' -> nn--
+                    j1[count] == '>' -> nn++
+                    j1[count] == '+' -> ress[nn] = ress[nn] + 1
+                    j1[count] == '-' -> ress[nn] = ress[nn] - 1
+                }
+                if (f == 1) break
+                count++
             }
-            if (f == 1) break
-            count++
+            return (Triple(ii, nn, ress))
         }
-        return (Triple(ii, nn, ress))
-    }
-    while ((i != limit) && (j != "")) {
-        i++
-        when {
-            j[0] == '[' ->
-                if (res[n] != 0) {
-                    val cir = circle(0, res, j, n, i)
-                    res = cir.third
-                    i = cir.first
-                    n = cir.second
-                    do {
-                        if (j[0] == '[') k++
-                        j = "^\\W".toRegex().replace(j, "")
-                        if (j[0] == ']') k--
-                    } while (k != 0)
-                } else
-                    do {
-                        if (j[0] == '[') k++
-                        j = "^\\W".toRegex().replace(j, "")
-                        if (j[0] == ']') k--
-                    } while (k != 0)
-            j[0] == '<' -> n--
-            j[0] == '>' -> n++
-            j[0] == '+' -> res[n]++
-            j[0] == '-' -> res[n]--
+        while ((i != limit) && (j != "")) {
+            i++
+            when {
+                j[0] == '[' ->
+                    if (res[n] != 0) {
+                        val cir = circle(0, res, j, n, i)
+                        res = cir.third
+                        i = cir.first
+                        n = cir.second
+                        do {
+                            if (j[0] == '[') k++
+                            j = "^\\W".toRegex().replace(j, "")
+                            if (j[0] == ']') k--
+                        } while (k != 0)
+                    } else
+                        do {
+                            if (j[0] == '[') k++
+                            j = "^\\W".toRegex().replace(j, "")
+                            if (j[0] == ']') k--
+                        } while (k != 0)
+                j[0] == '<' -> n--
+                j[0] == '>' -> n++
+                j[0] == '+' -> res[n]++
+                j[0] == '-' -> res[n]--
+            }
+            if ((n > cells - 1) or (n < 0)) throw IllegalStateException()
+            j = "^\\W".toRegex().replace(j, "")
+            k = 0
         }
-        if ((n > cells - 1) or (n < 0)) throw IllegalStateException()
-        j = "^\\W".toRegex().replace(j, "")
-        k = 0
-    }
+    } catch (e: IndexOutOfBoundsException) {throw IllegalStateException()}
     return res
 }
