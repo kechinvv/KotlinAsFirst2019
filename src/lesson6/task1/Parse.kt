@@ -3,6 +3,7 @@
 package lesson6.task1
 
 import lesson2.task2.daysInMonth
+import java.lang.Exception
 import java.lang.IllegalStateException
 import kotlin.IllegalArgumentException
 
@@ -354,44 +355,56 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             while (ii != limit) {
                 ii++
                 when {
-                    j1[count] == '[' -> if (ress[nn] != 0) {
-                        val gg = circle(count++, ress, j1, nn, ii)
-                        ress = gg.third
-                        ii = gg.first
-                        nn = gg.second
-                        do count++ while (j1[count] != ']')
-                    } else do count++ while (j1[count] != ']')
-                    j1[count] == ']' -> if (ress[nn] != 0) count = counter else f = 1
+                    j1[count] == '[' -> {
+                        if (ress[nn] != 0) {
+                            val gg = circle(count, ress, j1, nn, ii)
+                            ress = gg.third
+                            ii = gg.first
+                            nn = gg.second
+                        }
+                        k = 1
+                        do {
+                            count++
+                            if (j1[count] == ']') k--
+                            if (j1[count] == '[') k++
+                        } while (k != 0)
+                    }
+                    j1[count] == ']' ->
+                        if (ress[nn] != 0) {
+                            k = -1
+                            do {
+                                count--
+                                if (j1[count] == ']') k--
+                                if (j1[count] == '[') k++
+                            } while (k != 0)
+                        } else f = 1
                     j1[count] == '<' -> nn--
                     j1[count] == '>' -> nn++
                     j1[count] == '+' -> ress[nn] = ress[nn] + 1
                     j1[count] == '-' -> ress[nn] = ress[nn] - 1
                 }
-                if (f == 1) break
+                if ((nn > cells - 1) or (nn < 0)) throw IllegalStateException()
                 count++
+                if (f == 1) break
             }
             return (Triple(ii, nn, ress))
         }
         while ((i != limit) && (j != "")) {
             i++
             when {
-                j[0] == '[' ->
+                j[0] == '[' -> {
                     if (res[n] != 0) {
                         val cir = circle(0, res, j, n, i)
                         res = cir.third
                         i = cir.first
                         n = cir.second
-                        do {
-                            if (j[0] == '[') k++
-                            j = "^\\W".toRegex().replace(j, "")
-                            if (j[0] == ']') k--
-                        } while (k != 0)
-                    } else
-                        do {
-                            if (j[0] == '[') k++
-                            j = "^\\W".toRegex().replace(j, "")
-                            if (j[0] == ']') k--
-                        } while (k != 0)
+                    }
+                    do {
+                        if (j[0] == '[') k++
+                        j = "^\\W".toRegex().replace(j, "")
+                        if (j[0] == ']') k--
+                    } while (k != 0)
+                }
                 j[0] == '<' -> n--
                 j[0] == '>' -> n++
                 j[0] == '+' -> res[n]++
@@ -401,6 +414,8 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             j = "^\\W".toRegex().replace(j, "")
             k = 0
         }
-    } catch (e: IndexOutOfBoundsException) {throw IllegalStateException()}
+    } catch (e: IndexOutOfBoundsException) {
+        throw IllegalStateException()
+    }
     return res
 }
