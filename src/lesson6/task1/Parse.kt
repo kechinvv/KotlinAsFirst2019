@@ -74,24 +74,20 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
+val month = mapOf(
+    "января" to 1, "февраля" to 2, "марта" to 3, "апреля" to 4,
+    "мая" to 5, "июня" to 6, "июля" to 7, "августа" to 8,
+    "сентября" to 9, "октября" to 10, "ноября" to 11, "декабря" to 12
+)
+
 fun dateStrToDigit(str: String): String {
-    val month = mapOf<String, Int>(
-        "января" to 1, "февраля" to 2, "марта" to 3, "апреля" to 4,
-        "мая" to 5, "июня" to 6, "июля" to 7, "августа" to 8,
-        "сентября" to 9, "октября" to 10, "ноября" to 11, "декабря" to 12
-    )
     var res = ""
-    try {
-        val time = str.split(" ")
-        if ((time[0].toInt() <= daysInMonth(month[time[1]]!!, time[2].toInt())) && (time.size < 4))
-            res = String.format("%02d.%02d.%d", time[0].toInt(), month[time[1]], time[2].toInt())
-    } catch (e: NullPointerException) {
-        return ("")
-    } catch (e: NumberFormatException) {
-        return ("")
-    } catch (e: IndexOutOfBoundsException) {
-        return ("")
-    }
+    val time = str.split(" ")
+    if ((time.size != 3) || ("[^0-9]".toRegex().find(time[0]) != null) || ("[^0-9]".toRegex().find(time[2]) != null) ||
+        time[1] !in month || (time[0] == "") || (time[2] == "")
+    ) return ""
+    if ((time[0].toInt() <= daysInMonth(month[time[1]]!!, time[2].toInt())) && (time.size < 4))
+        res = String.format("%02d.%02d.%d", time[0].toInt(), month[time[1]], time[2].toInt())
     return res
 }
 
@@ -105,24 +101,20 @@ fun dateStrToDigit(str: String): String {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
+val month1 = mapOf(
+    1 to "января", 2 to "февраля", 3 to "марта", 4 to "апреля",
+    5 to "мая", 6 to "июня", 7 to "июля", 8 to "августа",
+    9 to "сентября", 10 to "октября", 11 to "ноября", 12 to "декабря"
+)
+
 fun dateDigitToStr(digital: String): String {
-    val month = mapOf<Int, String>(
-        1 to "января", 2 to "февраля", 3 to "марта", 4 to "апреля",
-        5 to "мая", 6 to "июня", 7 to "июля", 8 to "августа",
-        9 to "сентября", 10 to "октября", 11 to "ноября", 12 to "декабря"
-    )
     val time = digital.split(".")
     var res = ""
-    try {
-        if ((time[0].toInt() <= daysInMonth(time[1].toInt(), time[2].toInt())) && (time.size < 4))
-            res = String.format("%d %s %d", time[0].toInt(), month[time[1].toInt()]!!, time[2].toInt())
-    } catch (e: NullPointerException) {
-        return ("")
-    } catch (e: NumberFormatException) {
-        return ("")
-    } catch (e: IndexOutOfBoundsException) {
-        return ("")
-    }
+    if ((time.size != 3) || ("[^0-9]".toRegex().find(time[0]) != null) || ("[^0-9]".toRegex().find(time[2]) != null) ||
+        time[1].toInt() !in month1 || (time[0] == "") || (time[2] == "")
+    ) return ""
+    if ((time[0].toInt() <= daysInMonth(time[1].toInt(), time[2].toInt())) && (time.size < 4))
+        res = String.format("%d %s %d", time[0].toInt(), month1[time[1].toInt()]!!, time[2].toInt())
     return res
 }
 
@@ -141,11 +133,9 @@ fun dateDigitToStr(digital: String): String {
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
 fun flattenPhoneNumber(phone: String): String {
-    val a = Regex("\\([^0-9]*\\)")
-    if (a.find(phone) != null) return ("")
-    val p = "^\\+|-| |[0-9]|\\(.+\\)".toRegex()
-    if (p.replace(phone, "") != "") return ("")
-    else return (("[- ()]".toRegex()).replace(phone, ""))
+    val p = "(^\\+|)[0-9 -]|\\([0-9 -]*\\d+[0-9 -]*\\)".toRegex()
+    return if ((p.replace(phone, "") != "") || (phone == "")) ""
+    else "[- ()]".toRegex().replace(phone, "")
 }
 
 /**
@@ -161,13 +151,10 @@ fun flattenPhoneNumber(phone: String): String {
 fun bestLongJump(jumps: String): Int {
     val r = "[- %]+".toRegex()
     var res = -1
+    if (("[^0-9-% ]".toRegex().find(jumps) != null) || ("[0-9]".toRegex().find(jumps) == null)) return res
     val format = r.replace(jumps, " ")
-    try {
-        val list = format.split(" ").map { it.toInt() }
-        res = list.maxBy { it }!!
-    } catch (e: NumberFormatException) {
-        return (-1)
-    }
+    val list = format.split(" ").map { it.toInt() }
+    res = list.maxBy { it }!!
     return res
 }
 
@@ -183,7 +170,8 @@ fun bestLongJump(jumps: String): Int {
  * вернуть -1.
  */
 fun bestHighJump(jumps: String): Int {
-    val a = "([0-9]+ *\\+)".toRegex().findAll(jumps)
+    if ("[^0-9 +%-]".toRegex().find(jumps) != null) return -1
+    val a = "([0-9]+ \\+)".toRegex().findAll(jumps)
     return a.map { it.value.replace(" +", "").toInt() }.max() ?: -1
 }
 
@@ -198,8 +186,8 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    if (("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex().find(expression) == null) or ("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex()
-            .replace(expression, "") != "")
+    if (("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex()
+            .replace(expression, "") != "") || (expression == "")
     ) throw IllegalArgumentException()
     var str = "( \\+)".toRegex().replace(expression, "")
     str = "(- )".toRegex().replace(str, "-")
@@ -233,17 +221,11 @@ fun firstDuplicateIndex(str: String): Int {
  * Все цены должны быть больше либо равны нуля.
  */
 fun mostExpensive(description: String): String {
-    val form: List<String>
+    if ((description == "") || ("\\S*\\s\\d+\\.\\d+(; |)".toRegex().replace(description, "") != "")) return ""
+    val form = "(; )".toRegex().split(description)
     val res = mutableListOf<Pair<Double, String>>()
-    try {
-        form = "(; )".toRegex().split(description)
-        for (i in form.indices)
-            res.add(form[i].split(" ")[1].toDouble() to form[i].split(" ")[0])
-    } catch (e: NumberFormatException) {
-        return ("")
-    } catch (e: IndexOutOfBoundsException) {
-        return ("")
-    }
+    for (i in form.indices)
+        res.add(form[i].split(" ")[1].toDouble() to form[i].split(" ")[0])
     return (res.maxBy { it.first }!!.second)
 }
 
@@ -259,31 +241,26 @@ fun mostExpensive(description: String): String {
  * Вернуть -1, если roman не является корректным римским числом
  */
 fun fromRoman(roman: String): Int {
-    var res = -1
-    var rom = roman
-    try {
-        val list = listOf<Pair<String, Int>>(
-            "I" to 1, "IV" to 4, "V" to 5, "IX" to 9, "X" to 10, "XL" to 40,
-            "L" to 50, "XC" to 90, "C" to 100, "CD" to 400, "D" to 500, "CM" to 900, "M" to 1000
-        )
-        for (i in 0..(list.size - 2) step 2) {
-            while ("${list[i].first}$".toRegex().find(rom) != null) {
-                res += list[i].second
-                rom = "${list[i].first}$".toRegex().replace(rom, "")
-            }
-            if ("${list[i + 1].first}$".toRegex().find(rom) != null) {
-                res += list[i + 1].second
-                rom = "${list[i + 1].first}$".toRegex().replace(rom, "")
-            }
-        }
-        while ("${list[12].first}$".toRegex().find(rom) != null) {
-            res += list[12].second
-            rom = "${list[12].first}$".toRegex().replace(rom, "")
-        }
-    } catch (e: NumberFormatException) {
-        return (-1)
+    if (("[^IVXLCDM]".toRegex().find(roman) != null) || (roman == "")) return -1
+    var res = 0
+    var n = -1
+    var k = 0
+    val map = mapOf<String, Int>(
+        "I" to 1, "IV" to 4, "V" to 5, "IX" to 9, "X" to 10, "XL" to 40,
+        "L" to 50, "XC" to 90, "C" to 100, "CD" to 400, "D" to 500, "CM" to 900, "M" to 1000
+    )
+    while (n != roman.length - 1) {
+        n++
+        if ((n + 1 <= roman.length - 1) && (map[roman[n].toString()]!! < map[roman[n + 1].toString()]!!)) {
+            if ((roman[n].toString() + roman[n + 1]) in map) {
+                res += map[roman[n].toString() + roman[n + 1]]!!
+                n++
+            } else k = 1
+        } else
+            res += map[roman[n].toString()]!!
+        if (k == 1) break
     }
-    return if ((res == -1) or (rom != "")) (-1) else (res + 1)
+    return if (k == 1) -1 else res
 }
 
 /**
@@ -335,87 +312,83 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
     }
     if (k != 0) throw IllegalArgumentException()
     var res = mutableListOf<Int>()
-    try {
-        for (i in 0 until cells) res.add(0)
-        var n = cells / 2
-        var i = 0
-        var j = commands
-        fun circle(
-            counter: Int,
-            res1: MutableList<Int>,
-            j1: String,
-            n1: Int,
-            i1: Int
-        ): Triple<Int, Int, MutableList<Int>> {
-            var ii = i1
-            var nn = n1
-            var f = 0
-            var ress = res1
-            var count = counter + 1
-            while (ii != limit) {
-                ii++
-                when {
-                    j1[count] == '[' -> {
-                        if (ress[nn] != 0) {
-                            val gg = circle(count, ress, j1, nn, ii)
-                            ress = gg.third
-                            ii = gg.first
-                            nn = gg.second
-                        }
-                        k = 1
+    for (i in 0 until cells) res.add(0)
+    var n = cells / 2
+    var i = 0
+    var counter2 = 0
+    fun circle(
+        counter: Int,
+        res1: MutableList<Int>,
+        j1: String,
+        n1: Int,
+        i1: Int
+    ): Triple<Int, Int, MutableList<Int>> {
+        var ii = i1
+        var nn = n1
+        var f = 0
+        var ress = res1
+        var count = counter + 1
+        while (ii != limit) {
+            ii++
+            when {
+                j1[count] == '[' -> {
+                    if (ress[nn] != 0) {
+                        val gg = circle(count, ress, j1, nn, ii)
+                        ress = gg.third
+                        ii = gg.first
+                        nn = gg.second
+                    }
+                    k = 1
+                    do {
+                        count++
+                        if (j1[count] == ']') k--
+                        if (j1[count] == '[') k++
+                    } while (k != 0)
+                }
+                j1[count] == ']' ->
+                    if (ress[nn] != 0) {
+                        k = -1
                         do {
-                            count++
+                            count--
                             if (j1[count] == ']') k--
                             if (j1[count] == '[') k++
                         } while (k != 0)
-                    }
-                    j1[count] == ']' ->
-                        if (ress[nn] != 0) {
-                            k = -1
-                            do {
-                                count--
-                                if (j1[count] == ']') k--
-                                if (j1[count] == '[') k++
-                            } while (k != 0)
-                        } else f = 1
-                    j1[count] == '<' -> nn--
-                    j1[count] == '>' -> nn++
-                    j1[count] == '+' -> ress[nn] = ress[nn] + 1
-                    j1[count] == '-' -> ress[nn] = ress[nn] - 1
-                }
-                if ((nn > cells - 1) or (nn < 0)) throw IllegalStateException()
-                count++
-                if (f == 1) break
+                    } else f = 1
+                j1[count] == '<' -> nn--
+                j1[count] == '>' -> nn++
+                j1[count] == '+' -> ress[nn] = ress[nn] + 1
+                j1[count] == '-' -> ress[nn] = ress[nn] - 1
             }
-            return (Triple(ii, nn, ress))
+            if ((nn > cells - 1) or (nn < 0)) throw IllegalStateException()
+            count++
+            if (f == 1) break
         }
-        while ((i != limit) && (j != "")) {
-            i++
-            when {
-                j[0] == '[' -> {
-                    if (res[n] != 0) {
-                        val cir = circle(0, res, j, n, i)
-                        res = cir.third
-                        i = cir.first
-                        n = cir.second
-                    }
-                    do {
-                        if (j[0] == '[') k++
-                        j = "^\\W".toRegex().replace(j, "")
-                        if (j[0] == ']') k--
-                    } while (k != 0)
+        return (Triple(ii, nn, ress))
+    }
+    while ((i != limit) && (counter2 != commands.length)) {
+        i++
+        when {
+            commands[counter2] == '[' -> {
+                if (res[n] != 0) {
+                    val cir = circle(counter2, res, commands, n, i)
+                    res = cir.third
+                    i = cir.first
+                    n = cir.second
                 }
-                j[0] == '<' -> n--
-                j[0] == '>' -> n++
-                j[0] == '+' -> res[n]++
-                j[0] == '-' -> res[n]--
+                do {
+                    if (commands[counter2] == '[') k++
+                    counter2++
+                    if (commands[counter2] == ']') k--
+                } while (k != 0)
             }
-            if ((n > cells - 1) or (n < 0)) throw IllegalStateException()
-            j = "^\\W".toRegex().replace(j, "")
-            k = 0
+            commands[counter2] == '<' -> n--
+            commands[counter2] == '>' -> n++
+            commands[counter2] == '+' -> res[n]++
+            commands[counter2] == '-' -> res[n]--
         }
-    } catch (e: IndexOutOfBoundsException) {
-        throw IllegalStateException()
+        if ((n > cells - 1) or (n < 0)) throw IllegalStateException()
+        counter2++
+        k = 0
     }
     return res
 }
