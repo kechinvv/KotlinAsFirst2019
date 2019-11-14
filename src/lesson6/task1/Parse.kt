@@ -244,23 +244,21 @@ fun fromRoman(roman: String): Int {
     if (("[^IVXLCDM]".toRegex().find(roman) != null) || (roman == "")) return -1
     var res = 0
     var n = -1
-    var k = 0
-    val map = mapOf<String, Int>(
+    val map = mapOf(
         "I" to 1, "IV" to 4, "V" to 5, "IX" to 9, "X" to 10, "XL" to 40,
         "L" to 50, "XC" to 90, "C" to 100, "CD" to 400, "D" to 500, "CM" to 900, "M" to 1000
     )
     while (n != roman.length - 1) {
         n++
-        if ((n + 1 <= roman.length - 1) && (map[roman[n].toString()]!! < map[roman[n + 1].toString()]!!)) {
+        if ((n + 1 <= roman.length - 1) && (map[roman[n].toString()] ?: -1 < map[roman[n + 1].toString()] ?: -1)) {
             if ((roman[n].toString() + roman[n + 1]) in map) {
-                res += map[roman[n].toString() + roman[n + 1]]!!
+                res += map[roman[n].toString() + roman[n + 1]] ?: -1
                 n++
-            } else k = 1
+            }
         } else
-            res += map[roman[n].toString()]!!
-        if (k == 1) break
+            res += map[roman[n].toString()] ?: -1
     }
-    return if (k == 1) -1 else res
+    return res
 }
 
 /**
@@ -386,7 +384,7 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             commands[counter2] == '+' -> res[n]++
             commands[counter2] == '-' -> res[n]--
         }
-        if ((n > cells - 1) or (n < 0)) throw IllegalStateException()
+        if ((n > cells - 1) || (n < 0)) throw IllegalStateException()
         counter2++
         k = 0
     }
