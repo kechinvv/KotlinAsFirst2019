@@ -2,6 +2,7 @@
 
 package lesson7.task1
 
+import ru.spbstu.wheels.tail
 import java.io.File
 import java.nio.charset.Charset
 
@@ -361,62 +362,14 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
-    var i = 0
-    var b = 0
-    var s = 0
-    var p = 0
     val out = File(outputName).bufferedWriter()
     out.write("<html><body>")
-    for (line in File(inputName).bufferedReader().readLines()) {
-        if (line.isNotBlank()) {
-            if (p == 0) {
-                p++
-                out.write("<p>")
-            }
-            val newline = "(~~)".toRegex()
-                .replace("(\\*+)".toRegex().replace(line, " $1 "), " ~~ ")
-            val list = "\\s+".toRegex().split(newline).toMutableList()
-            for (j in list.indices)
-                when {
-                    list[j] == "***" -> if ((i == 0) && (b == 0)) {
-                        list[j] = " <b><i>"
-                        i++
-                        b++
-                    } else if ((i != 0) && (b != 0)) {
-                        list[j] = "</b></i> "
-                        b--
-                        i--
-                    }
-                    list[j] == "**" -> if (b == 0) {
-                        list[j] = " <b>"
-                        b++
-                    } else {
-                        list[j] = "</b> "
-                        b--
-                    }
-                    list[j] == "*" -> if (i == 0) {
-                        list[j] = " <i>"
-                        i++
-                    } else {
-                        list[j] = "</i> "
-                        i--
-                    }
-                    list[j] == "~~" -> if (s == 0) {
-                        list[j] = " <s>"
-                        s++
-                    } else {
-                        list[j] = "</s> "
-                        s--
-                    }
-                    else -> list[j] = list[j] + " "
-                }
-            out.write(list.fold("") { a, b -> a + b }.trim())
-        } else if (p != 0) {
-            out.write("</p>")
-            p--
-        }
-    }
-    if (p!=0) out.write("</p>")
+    var text = File(inputName).bufferedReader().readText()
+    text = Regex("\\*\\*(.+?)\\*\\*", RegexOption.DOT_MATCHES_ALL).replace(text, "<b>$1</b>")
+    text = Regex("\\*(.+?)\\*", RegexOption.DOT_MATCHES_ALL).replace(text, "<i>$1</i>")
+    text = Regex("~~(.+?)~~", RegexOption.DOT_MATCHES_ALL).replace(text, "<s>$1</s>")
+    text = ".+(\\r?\\n?.)*".toRegex().replace(text, "<p>$0</p>")
+    out.write(text)
     out.write("</body></html>")
     out.close()
 }
@@ -521,7 +474,64 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
 fun markdownToHtmlLists(inputName: String, outputName: String) {
-    TODO()
+    val list = mutableListOf<String>()
+    var ul = 0
+    var ol = 0
+    val out = File(outputName).bufferedWriter()
+    out.write("<html><body>")
+    var space = -1
+    if (File(inputName).bufferedReader().readLine().trim()[0] == '*') {
+        out.write(
+            "<ul>${"^\\s*(\\* )(.*)".toRegex().replace(
+                File(inputName).bufferedReader().readLine(),
+                "<li>\$2"
+            )}"
+        )
+        list += "</ul>"
+    }
+    if ("^\\s*[0-9]+\\..*".toRegex().matches(File(inputName).bufferedReader().readLine())) {
+        out.write(
+            "<ol>${"^\\s*([0-9]+\\. )(.*)".toRegex().replace(
+                File(inputName).bufferedReader().readLine(),
+                "<li>\$2"
+            )}"
+        )
+        list += "</ol>"
+    }
+    space = "^\\s*".toRegex().find(File(inputName).bufferedReader().readLine())!!.value.length
+    for (line in File(inputName).bufferedReader().readLines().drop(1)) {
+        if ((line.trim()[0] == '*') && (space > "\\s*".toRegex().find(line)!!.value.length)) {
+            out.write("</li>")
+            for (i in list.size - 1 downTo list.size - (space - "\\s*".toRegex().find(line)!!.value.length) / 4) {
+                out.write(list[i])
+                list.removeAt(i)
+            }
+            out.write("</li>${"^\\s*(\\* )(.*)".toRegex().replace(line, "<li>$2")}")
+        }
+        if (("^\\s*[0-9]+\\..*".toRegex().matches(line)) && (space > "\\s*".toRegex().find(line)!!.value.length)) {
+            out.write("</li>")
+            for (i in list.size - 1 downTo list.size - (space - "\\s*".toRegex().find(line)!!.value.length) / 4) {
+                out.write(list[i])
+                list.removeAt(i)
+            }
+            out.write("</li>${"^\\s*([0-9]+\\. )(.*)".toRegex().replace(line, "<li>$2")}")
+        }
+        if ((line.trim()[0] == '*') && (space < "\\s*".toRegex().find(line)!!.value.length)) {
+            out.write("<ul>${"^\\s*(\\* )(.*)".toRegex().replace(line, "<li>$2")}")
+            list += "</ul>"
+        }
+        if (("^\\s*[0-9]+\\..*".toRegex().matches(line)) && (space < "\\s*".toRegex().find(line)!!.value.length)) {
+            out.write("<ol>${"^\\s*([0-9]+\\. )(.*)".toRegex().replace(line, "<li>$2")}")
+            list += "</ol>"
+        }
+        if (space == "\\s*".toRegex().find(line)!!.value.length)
+            out.write("^\\s*(\\*\\s|[0-9]+\\. )(.*)".toRegex().replace(line, "</li><li>$2"))
+        space = "^\\s*".toRegex().find(line)!!.value.length
+    }
+    out.write("</li>")
+    for (i in list.size - 1 downTo 0) out.write(list[i])
+    out.write("</body></html>")
+    out.close()
 }
 
 /**
@@ -546,8 +556,8 @@ fun markdownToHtml(inputName: String, outputName: String) {
  *    111
 --------
 19935
++  19935
 + 19935
-+19935
 --------
 2212785
  * Используемые пробелы, отступы и дефисы должны в точности соответствовать примеру.
@@ -562,7 +572,38 @@ fun markdownToHtml(inputName: String, outputName: String) {
  *
  */
 fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
-    TODO()
+    val out = File(outputName).bufferedWriter()
+    for (i in 1..rhv.toString().length) out.write(" ")
+    out.write("$lhv")
+    out.newLine()
+    out.write("*")
+    for (i in 1 until lhv.toString().length) out.write(" ")
+    out.write("$rhv")
+    out.newLine()
+    for (i in 1..(lhv.toString().length + rhv.toString().length)) out.write("-")
+    out.newLine()
+    for (i in 1..(lhv.toString().length + rhv.toString().length - (lhv * (rhv % 10)).toString().length)) out.write(" ")
+    out.write("${lhv * (rhv % 10)}")
+    out.newLine()
+    if (rhv > 10) {
+        var space = 1
+        var a = rhv / 10
+        while (a != 0) {
+            out.write("+")
+            for (i in 1 until lhv.toString().length + rhv.toString().length - (a % 10 * lhv).toString().length - space) out.write(
+                " "
+            )
+            out.write("${(a % 10) * lhv}")
+            a /= 10
+            space++
+            out.newLine()
+        }
+    }
+    for (i in 1..(lhv.toString().length + rhv.toString().length)) out.write("-")
+    out.newLine()
+    for (i in 1..(lhv.toString().length + rhv.toString().length - (lhv * rhv).toString().length)) out.write(" ")
+    out.write("${lhv * rhv}")
+    out.close()
 }
 
 
@@ -587,6 +628,49 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
  *
  */
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
-    TODO()
+    val out = File(outputName).bufferedWriter()
+    var space = ""
+    out.write(" $lhv | $rhv")
+    val res = lhv / rhv
+    out.newLine()
+    var k = 0
+    var def = ""
+    var current = lhv.toString()[k].toString()
+    while ((current.toInt() < rhv) && (k != lhv.toString().length - 1)) {
+        k++
+        current += lhv.toString()[k]
+    }
+    space += " ".repeat(current.length - (current.toInt() / rhv * rhv).toString().length)
+    var spaceres = ""
+    spaceres += " ".repeat(lhv.toString().length - (current.toInt() / rhv * rhv).toString().length + 3)
+    out.write("-$space${current.toInt() / rhv * rhv}$spaceres$res")
+    def += "-".repeat(current.length + 1)
+    out.newLine()
+    out.write(def)
+    out.newLine()
+    space = " "
+    while (k != lhv.toString().length - 1) {
+        def = ""
+        space += " ".repeat(current.length - (current.toInt() % rhv).toString().length)
+        current = (current.toInt() % rhv).toString()
+        k++
+        current += lhv.toString()[k]
+        out.write("$space$current")
+        out.newLine()
+        var minus = ""
+        minus += " ".repeat(current.length - (current.toInt() / rhv * rhv).toString().length)
+        if (current.length == (current.toInt() / rhv * rhv).toString().length)
+            def += "-".repeat(current.length + 1)
+        else
+            def += "-".repeat(current.length)
+        out.write("${space.substring(0..space.length - 2)}$minus-${current.toInt() / rhv * rhv}")
+        out.newLine()
+        out.write("${space.substring(0..space.length - 2)}$minus$def")
+        out.newLine()
+    }
+    space += " ".repeat(current.length - (current.toInt() % rhv).toString().length)
+    current = (current.toInt() % rhv).toString()
+    out.write("$space$current")
+    out.close()
 }
 
