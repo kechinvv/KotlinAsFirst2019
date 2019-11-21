@@ -83,10 +83,9 @@ val month = mapOf(
 fun dateStrToDigit(str: String): String {
     var res = ""
     val time = str.split(" ")
-    if ((time.size != 3) || ("[^0-9]".toRegex().find(time[0]) != null) || ("[^0-9]".toRegex().find(time[2]) != null) ||
-        time[1] !in month || (time[0] == "") || (time[2] == "")
-    ) return ""
-    if ((time[0].toInt() <= daysInMonth(month[time[1]]!!, time[2].toInt())) && (time.size < 4))
+    if (time.size == 3 && time[1] in month && "[0-9]+".toRegex().matches(time[0]) && "[0-9]+".toRegex().matches(time[2])
+        && time[0].toInt() in 1..daysInMonth(month[time[1]] ?: error(""), time[2].toInt())
+    )
         res = String.format("%02d.%02d.%d", time[0].toInt(), month[time[1]], time[2].toInt())
     return res
 }
@@ -110,11 +109,10 @@ val month1 = mapOf(
 fun dateDigitToStr(digital: String): String {
     val time = digital.split(".")
     var res = ""
-    if ((time.size != 3) || ("[^0-9]".toRegex().find(time[0]) != null) || ("[^0-9]".toRegex().find(time[2]) != null) ||
-        time[1].toInt() !in month1 || (time[0] == "") || (time[2] == "")
-    ) return ""
-    if ((time[0].toInt() <= daysInMonth(time[1].toInt(), time[2].toInt())) && (time.size < 4))
-        res = String.format("%d %s %d", time[0].toInt(), month1[time[1].toInt()]!!, time[2].toInt())
+    if (time.size == 3 && "[0-9]+".toRegex().matches(time[0]) && "[0-9]+".toRegex().matches(time[2]) &&
+        time[1].toInt() in month1 && time[0].toInt() <= daysInMonth(time[1].toInt(), time[2].toInt())
+    )
+        res = String.format("%d %s %d", time[0].toInt(), month1[time[1].toInt()] ?: error(""), time[2].toInt())
     return res
 }
 
@@ -133,9 +131,14 @@ fun dateDigitToStr(digital: String): String {
  * PS: Дополнительные примеры работы функции можно посмотреть в соответствующих тестах.
  */
 fun flattenPhoneNumber(phone: String): String {
-    val p = "(^\\+|)[0-9 -]|\\([0-9 -]*\\d+[0-9 -]*\\)".toRegex()
-    return if ((p.replace(phone, "") != "") || (phone == "")) ""
-    else "[- ()]".toRegex().replace(phone, "")
+    return if ("^\\+?[0-9 -]*(\\([0-9 -]*\\d+[0-9 -]*\\))?[0-9 -]*".toRegex().matches(phone) && "\\d".toRegex().find(
+            phone
+        ) != null
+    ) "[- ()]".toRegex().replace(
+        phone,
+        ""
+    )
+    else ""
 }
 
 /**
@@ -149,12 +152,12 @@ fun flattenPhoneNumber(phone: String): String {
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int {
-    val r = "[- %]+".toRegex()
     var res = -1
-    if (("[^0-9-% ]".toRegex().find(jumps) != null) || ("[0-9]".toRegex().find(jumps) == null)) return res
-    val format = r.replace(jumps, " ")
-    val list = format.split(" ").map { it.toInt() }
-    res = list.maxBy { it }!!
+    if ("^[0-9]+(( [-%])* [0-9]+)*".toRegex().matches(jumps)) {
+        val format = "[- %]+".toRegex().replace(jumps, " ")
+        val list = format.split(" ").map { it.toInt() }
+        res = list.maxBy { it }!!
+    }
     return res
 }
 
@@ -170,9 +173,10 @@ fun bestLongJump(jumps: String): Int {
  * вернуть -1.
  */
 fun bestHighJump(jumps: String): Int {
-    if ("[^0-9 +%-]".toRegex().find(jumps) != null) return -1
-    val a = "([0-9]+ \\+)".toRegex().findAll(jumps)
-    return a.map { it.value.replace(" +", "").toInt() }.max() ?: -1
+    return if ("^([0-9]+ [+%-]+)( [0-9]+ [+%-]+)*".toRegex().matches(jumps)) {
+        val a = "([0-9]+ \\+)".toRegex().findAll(jumps)
+        a.map { it.value.replace(" +", "").toInt() }.max() ?: -1
+    } else -1
 }
 
 
@@ -186,13 +190,12 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    if (("^([0-9]+)|( ([+\\-]) [0-9]+)".toRegex()
-            .replace(expression, "") != "") || (expression == "")
-    ) throw IllegalArgumentException()
-    var str = "( \\+)".toRegex().replace(expression, "")
-    str = "(- )".toRegex().replace(str, "-")
-    val res = str.split(" ")
-    return res.sumBy { it.toInt() }
+    if ("^([0-9]+)( [+-] [0-9]+)*".toRegex().matches(expression)) {
+        var str = "( \\+)".toRegex().replace(expression, "")
+        str = "(- )".toRegex().replace(str, "-")
+        val res = str.split(" ")
+        return res.sumBy { it.toInt() }
+    } else throw IllegalArgumentException()
 }
 
 /**

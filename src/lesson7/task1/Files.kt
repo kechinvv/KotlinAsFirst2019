@@ -89,12 +89,13 @@ fun sibilants(inputName: String, outputName: String) {
     val out = File(outputName).bufferedWriter()
     for (line in File(inputName).bufferedReader().readLines()) {
         var right = line
-        right = "(?<=[ЖжШшЧчЩщ])[Ы]".toRegex().replace(right, "И")
-        right = "(?<=[ЖжШшЧчЩщ])[ы]".toRegex().replace(right, "и")
-        right = "(?<=[ЖжШшЧчЩщ])[Я]".toRegex().replace(right, "А")
-        right = "(?<=[ЖжШшЧчЩщ])[я]".toRegex().replace(right, "а")
-        right = "(?<=[ЖжШшЧчЩщ])[Ю]".toRegex().replace(right, "У")
-        right = "(?<=[ЖжШшЧчЩщ])[ю]".toRegex().replace(right, "у")
+        val reg = "(?<=[ЖжШшЧчЩщ])"
+        right = "$reg[Ы]".toRegex().replace(right, "И")
+        right = "$reg[ы]".toRegex().replace(right, "и")
+        right = "$reg[Я]".toRegex().replace(right, "А")
+        right = "$reg[я]".toRegex().replace(right, "а")
+        right = "$reg[Ю]".toRegex().replace(right, "У")
+        right = "$reg[ю]".toRegex().replace(right, "у")
         out.write(
             right
         )
@@ -475,8 +476,6 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
  */
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     val list = mutableListOf<String>()
-    var ul = 0
-    var ol = 0
     val out = File(outputName).bufferedWriter()
     out.write("<html><body>")
     var space = -1
@@ -500,36 +499,35 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     }
     space = "^\\s*".toRegex().find(File(inputName).bufferedReader().readLine())!!.value.length
     for (line in File(inputName).bufferedReader().readLines().drop(1)) {
-        if ((line.trim()[0] == '*') && (space > "\\s*".toRegex().find(line)!!.value.length)) {
-            out.write("</li>")
-            for (i in list.size - 1 downTo list.size - (space - "\\s*".toRegex().find(line)!!.value.length) / 4) {
-                out.write(list[i])
-                list.removeAt(i)
+        if (line.isNotBlank()) {
+            if ((line.trim()[0] == '*') && (space > "\\s*".toRegex().find(line)!!.value.length)) {
+                for (i in list.size - 1 downTo list.size - (space - "\\s*".toRegex().find(line)!!.value.length) / 4) {
+                    out.write("</li>${list[i]}")
+                    list.removeAt(i)
+                }
+                out.write("</li>${"^\\s*(\\* )(.*)".toRegex().replace(line, "<li>$2")}")
             }
-            out.write("</li>${"^\\s*(\\* )(.*)".toRegex().replace(line, "<li>$2")}")
-        }
-        if (("^\\s*[0-9]+\\..*".toRegex().matches(line)) && (space > "\\s*".toRegex().find(line)!!.value.length)) {
-            out.write("</li>")
-            for (i in list.size - 1 downTo list.size - (space - "\\s*".toRegex().find(line)!!.value.length) / 4) {
-                out.write(list[i])
-                list.removeAt(i)
+            if (("^\\s*[0-9]+\\..*".toRegex().matches(line)) && (space > "\\s*".toRegex().find(line)!!.value.length)) {
+                for (i in list.size - 1 downTo list.size - (space - "\\s*".toRegex().find(line)!!.value.length) / 4) {
+                    out.write("</li>${list[i]}")
+                    list.removeAt(i)
+                }
+                out.write("</li>${"^\\s*([0-9]+\\. )(.*)".toRegex().replace(line, "<li>$2")}")
             }
-            out.write("</li>${"^\\s*([0-9]+\\. )(.*)".toRegex().replace(line, "<li>$2")}")
+            if ((line.trim()[0] == '*') && (space < "\\s*".toRegex().find(line)!!.value.length)) {
+                out.write("<ul>${"^\\s*(\\* )(.*)".toRegex().replace(line, "<li>$2")}")
+                list += "</ul>"
+            }
+            if (("^\\s*[0-9]+\\..*".toRegex().matches(line)) && (space < "\\s*".toRegex().find(line)!!.value.length)) {
+                out.write("<ol>${"^\\s*([0-9]+\\. )(.*)".toRegex().replace(line, "<li>$2")}")
+                list += "</ol>"
+            }
+            if (space == "\\s*".toRegex().find(line)!!.value.length)
+                out.write("^\\s*(\\*\\s|[0-9]+\\. )(.*)".toRegex().replace(line, "</li><li>$2"))
+            space = "^\\s*".toRegex().find(line)!!.value.length
         }
-        if ((line.trim()[0] == '*') && (space < "\\s*".toRegex().find(line)!!.value.length)) {
-            out.write("<ul>${"^\\s*(\\* )(.*)".toRegex().replace(line, "<li>$2")}")
-            list += "</ul>"
-        }
-        if (("^\\s*[0-9]+\\..*".toRegex().matches(line)) && (space < "\\s*".toRegex().find(line)!!.value.length)) {
-            out.write("<ol>${"^\\s*([0-9]+\\. )(.*)".toRegex().replace(line, "<li>$2")}")
-            list += "</ol>"
-        }
-        if (space == "\\s*".toRegex().find(line)!!.value.length)
-            out.write("^\\s*(\\*\\s|[0-9]+\\. )(.*)".toRegex().replace(line, "</li><li>$2"))
-        space = "^\\s*".toRegex().find(line)!!.value.length
     }
-    out.write("</li>")
-    for (i in list.size - 1 downTo 0) out.write(list[i])
+    for (i in list.size - 1 downTo 0) out.write("</li>${list[i]}")
     out.write("</body></html>")
     out.close()
 }
