@@ -87,9 +87,9 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  */
 fun sibilants(inputName: String, outputName: String) {
     val out = File(outputName).bufferedWriter()
+    val reg = "(?<=[ЖжШшЧчЩщ])"
     for (line in File(inputName).bufferedReader().readLines()) {
         var right = line
-        val reg = "(?<=[ЖжШшЧчЩщ])"
         right = "$reg[Ы]".toRegex().replace(right, "И")
         right = "$reg[ы]".toRegex().replace(right, "и")
         right = "$reg[Я]".toRegex().replace(right, "А")
@@ -269,16 +269,18 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
                 line[i].toUpperCase() in dictionary -> {
                     list[i] =
                         (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
-                    if (line[i] == line[i].toLowerCase()) list[i] =
+                    if (line[i] == line[i].toLowerCase() && list[i].isNotBlank()) list[i] =
                         list[i].replace("^.".toRegex(), list[i][0].toLowerCase().toString())
-                    else list[i] = list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
+                    else if (list[i].isNotBlank()) list[i] =
+                        list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
                 }
                 line[i].toLowerCase() in dictionary -> {
                     list[i] =
                         (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
-                    if (line[i] == line[i].toLowerCase()) list[i] =
+                    if (line[i] == line[i].toLowerCase() && list[i].isNotBlank()) list[i] =
                         list[i].replace("^.".toRegex(), list[i][0].toLowerCase().toString())
-                    else list[i] = list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
+                    else if (list[i].isNotBlank()) list[i] =
+                        list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
                 }
                 else -> list[i] = line[i].toString()
             }
@@ -653,7 +655,8 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     if (current.length == (current.toInt() / rhv * rhv).toString().length) out.write(" ")
     out.write("$lhv | $rhv")
     out.newLine()
-    space += " ".repeat(current.length - (current.toInt() / rhv * rhv).toString().length)
+    if (current.length != (current.toInt() / rhv * rhv).toString().length)
+        space += " ".repeat(current.length - (current.toInt() / rhv * rhv).toString().length - 1)
     var spaceres = ""
     spaceres += " ".repeat(lhv.toString().length - current.toInt().toString().length + 3)
     out.write("$space-${current.toInt() / rhv * rhv}$spaceres$res")
