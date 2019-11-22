@@ -57,7 +57,7 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
  */
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
     val out = mutableMapOf<String, Int>()
-    for (i in substrings) out[i.toLowerCase()] = 0
+    for (i in substrings) out[i] = 0
     var str: String
     var line: String
     for ((i, v) in out)
@@ -264,19 +264,24 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
     val out = File(outputName).bufferedWriter()
     for (line in File(inputName).bufferedReader().readLines()) {
         val list = line.toList().map { it.toString() }.toMutableList()
-        for (i in line.indices) {
+        for (i in line.indices)
             when {
-                line[i].toUpperCase() in dictionary -> list[i] =
-                    (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
-                line[i].toLowerCase() in dictionary -> list[i] =
-                    (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
+                line[i].toUpperCase() in dictionary -> {
+                    list[i] =
+                        (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
+                    if (line[i] == line[i].toLowerCase()) list[i] =
+                        list[i].replace("^.".toRegex(), list[i][0].toLowerCase().toString())
+                    else list[i] = list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
+                }
+                line[i].toLowerCase() in dictionary -> {
+                    list[i] =
+                        (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
+                    if (line[i] == line[i].toLowerCase()) list[i] =
+                        list[i].replace("^.".toRegex(), list[i][0].toLowerCase().toString())
+                    else list[i] = list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
+                }
                 else -> list[i] = line[i].toString()
             }
-            if (list[i].isNotEmpty())
-                if (line[i] == line[i].toLowerCase()) list[i] =
-                    list[i].replace("^.".toRegex(), list[i][0].toLowerCase().toString())
-                else list[i] = list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
-        }
         out.write(list.fold("") { a, b -> a + b })
         out.newLine()
     }
@@ -309,16 +314,18 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
  */
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
     var max = Int.MIN_VALUE
-    var set = setOf<String>()
+    var set = mutableListOf<String>()
     val out = File(outputName).bufferedWriter()
-    for (line in File(inputName).bufferedReader().readLines()) {
-        if (line.toLowerCase().toCharArray().toSet().size > max &&
-            line.toLowerCase().toCharArray().toSet().size == line.length
-        ) {
+    for (line in File(inputName).bufferedReader().readLines()) when {
+        (line.toLowerCase().toCharArray().toSet().size > max &&
+                line.toLowerCase().toCharArray().toSet().size == line.length
+                ) -> {
             max = line.toLowerCase().toCharArray().toSet().size
-            set = setOf(line)
+            set = mutableListOf(line)
         }
-        if (line.toLowerCase().toCharArray().toSet().size == max) set += line
+        (line.toLowerCase().toCharArray().toSet().size == max &&
+                line.toLowerCase().toCharArray().toSet().size == line.length
+                ) -> set.add(line)
     }
     out.write(set.toString().substring(1, set.toString().length - 1))
     out.close()
@@ -639,7 +646,7 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     var k = 0
     var def = ""
     var current = lhv.toString()[k].toString()
-    while ((current.toInt() < rhv) && (k != lhv.toString().length - 1)) {
+    while (current.toInt() < rhv && k != lhv.toString().length - 1) {
         k++
         current += lhv.toString()[k]
     }
@@ -648,8 +655,8 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     out.newLine()
     space += " ".repeat(current.length - (current.toInt() / rhv * rhv).toString().length)
     var spaceres = ""
-    spaceres += " ".repeat(lhv.toString().length - (current.toInt() / rhv * rhv).toString().length + 3)
-    out.write("-$space${current.toInt() / rhv * rhv}$spaceres$res")
+    spaceres += " ".repeat(lhv.toString().length - current.toInt().toString().length + 3)
+    out.write("$space-${current.toInt() / rhv * rhv}$spaceres$res")
     def += if (current.length == (current.toInt() / rhv * rhv).toString().length)
         "-".repeat(current.length + 1)
     else
