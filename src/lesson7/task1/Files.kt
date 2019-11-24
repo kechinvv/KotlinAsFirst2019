@@ -267,20 +267,12 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
         for (i in line.indices)
             when {
                 line[i].toUpperCase() in dictionary -> {
-                    list[i] =
-                        (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
-                    if (line[i] == line[i].toLowerCase() && list[i].isNotBlank()) list[i] =
-                        list[i].replace("^.".toRegex(), list[i][0].toLowerCase().toString())
-                    else if (list[i].isNotBlank()) list[i] =
-                        list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
+                    list[i] = (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
+                    if (line[i] == line[i].toUpperCase()) list[i] = list[i].capitalize()
                 }
                 line[i].toLowerCase() in dictionary -> {
-                    list[i] =
-                        (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
-                    if (line[i] == line[i].toLowerCase() && list[i].isNotBlank()) list[i] =
-                        list[i].replace("^.".toRegex(), list[i][0].toLowerCase().toString())
-                    else if (list[i].isNotBlank()) list[i] =
-                        list[i].replace("^.".toRegex(), list[i][0].toUpperCase().toString())
+                    list[i] = (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
+                    if (line[i] == line[i].toUpperCase()) list[i] = list[i].capitalize()
                 }
                 else -> list[i] = line[i].toString()
             }
