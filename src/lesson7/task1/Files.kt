@@ -376,13 +376,15 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var b = 0
     var i = 0
     var s = 0
+    var flag = false
     for (line in File(inputName).bufferedReader().readLines()) {
         val newline = line.toList().map { it.toString() }.toMutableList()
+        if (newline.isNotEmpty()) flag = true
         if (p == 0 && line.isNotEmpty()) {
             out.write("<p>")
             p++
         }
-        if (p != 0 && line.isEmpty()) {
+        if (p != 0 && line.isEmpty() && flag) {
             out.write("</p>")
             p--
         }
