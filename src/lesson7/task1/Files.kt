@@ -262,23 +262,22 @@ fun top20Words(inputName: String): Map<String, Int> {
  */
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
     val out = File(outputName).bufferedWriter()
-    for (line in File(inputName).bufferedReader().readLines()) {
-        val list = line.toList().map { it.toString() }.toMutableList()
-        for (i in line.indices)
-            when {
-                line[i].toUpperCase() in dictionary -> {
-                    list[i] = (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
-                    if (line[i] != line[i].toLowerCase()) list[i] = list[i].capitalize()
-                }
-                line[i].toLowerCase() in dictionary -> {
-                    list[i] = (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
-                    if (line[i] != line[i].toLowerCase()) list[i] = list[i].capitalize()
-                }
-                else -> list[i] = line[i].toString()
+    var line = File(inputName).bufferedReader().readText()
+    val list = line.toList().map { it.toString() }.toMutableList()
+    for (i in line.indices)
+        when {
+            line[i].toUpperCase() in dictionary -> {
+                list[i] = (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
+                if (line[i] != line[i].toLowerCase()) list[i] = list[i].capitalize()
             }
-        out.write(list.fold("") { a, b -> a + b })
-        out.newLine()
-    }
+            line[i].toLowerCase() in dictionary -> {
+                list[i] = (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
+                if (line[i] != line[i].toLowerCase()) list[i] = list[i].capitalize()
+            }
+            else -> list[i] = line[i].toString()
+        }
+    out.write(list.fold("") { a, b -> a + b })
+    out.newLine()
     out.close()
 }
 
@@ -379,11 +378,11 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     var s = 0
     for (line in File(inputName).bufferedReader().readLines()) {
         val newline = line.toList().map { it.toString() }.toMutableList()
-        if (p == 0 && line.isNotBlank()) {
+        if (p == 0 && line.isNotEmpty()) {
             out.write("<p>")
             p++
         }
-        if (p != 0 && line.isBlank()) {
+        if (p != 0 && line.isEmpty()) {
             out.write("</p>")
             p--
         }
