@@ -268,11 +268,11 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
             when {
                 line[i].toUpperCase() in dictionary -> {
                     list[i] = (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
-                    if (line[i] == line[i].toUpperCase()) list[i] = list[i].capitalize()
+                    if (line[i] != line[i].toLowerCase()) list[i] = list[i].capitalize()
                 }
                 line[i].toLowerCase() in dictionary -> {
                     list[i] = (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
-                    if (line[i] == line[i].toUpperCase()) list[i] = list[i].capitalize()
+                    if (line[i] != line[i].toLowerCase()) list[i] = list[i].capitalize()
                 }
                 else -> list[i] = line[i].toString()
             }
@@ -388,7 +388,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
             p--
         }
         for (k in line.indices) {
-            if (newline[k] == "*" && newline[k + 1] == "*") if (b == 0) {
+            if (k < line.length - 1) if (newline[k] == "*" && newline[k + 1] == "*") if (b == 0) {
                 b++
                 newline[k] = "<b>"
                 newline[k + 1] = ""
@@ -404,7 +404,7 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
                 i--
                 newline[k] = "</i>"
             }
-            if (newline[k] == "~" && newline[k + 1] == "~") if (s == 0) {
+            if (k < line.length - 1) if (newline[k] == "~" && newline[k + 1] == "~") if (s == 0) {
                 s++
                 newline[k] = "<s>"
                 newline[k + 1] = ""
