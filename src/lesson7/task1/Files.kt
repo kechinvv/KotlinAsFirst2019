@@ -373,12 +373,50 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val out = File(outputName).bufferedWriter()
     out.write("<html><body>")
-    var text = File(inputName).bufferedReader().readText()
-    text = Regex("\\*\\*(.+?)\\*\\*", RegexOption.DOT_MATCHES_ALL).replace(text, "<b>$1</b>")
-    text = Regex("\\*(.+?)\\*", RegexOption.DOT_MATCHES_ALL).replace(text, "<i>$1</i>")
-    text = Regex("~~(.+?)~~", RegexOption.DOT_MATCHES_ALL).replace(text, "<s>$1</s>")
-    text = ".+(\\r?\\n?.)*".toRegex().replace(text, "<p>$0</p>")
-    out.write(text)
+    var p = 0
+    var b = 0
+    var i = 0
+    var s = 0
+    for (line in File(inputName).bufferedReader().readLines()) {
+        val newline = line.toList().map { it.toString() }.toMutableList()
+        if (p == 0 && line.isNotBlank()) {
+            out.write("<p>")
+            p++
+        }
+        if (p != 0 && line.isBlank()) {
+            out.write("</p>")
+            p--
+        }
+        for (k in line.indices) {
+            if (newline[k] == "*" && newline[k + 1] == "*") if (b == 0) {
+                b++
+                newline[k] = "<b>"
+                newline[k + 1] = ""
+            } else {
+                b--
+                newline[k] = "</b>"
+                newline[k + 1] = ""
+            }
+            if (newline[k] == "*") if (i == 0) {
+                i++
+                newline[k] = "<i>"
+            } else {
+                i--
+                newline[k] = "</i>"
+            }
+            if (newline[k] == "~" && newline[k + 1] == "~") if (s == 0) {
+                s++
+                newline[k] = "<s>"
+                newline[k + 1] = ""
+            } else {
+                s--
+                newline[k] = "</s>"
+                newline[k + 1] = ""
+            }
+        }
+        out.write(newline.fold("") { a, b -> a + b })
+    }
+    if (p != 0) out.write("</p>")
     out.write("</body></html>")
     out.close()
 }
