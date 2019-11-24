@@ -371,8 +371,8 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  */
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val out = File(outputName).bufferedWriter()
-    out.write("<html><body>")
-    var p = 0
+    out.write("<html><body><p>")
+    var p = 1
     var b = 0
     var i = 0
     var s = 0
