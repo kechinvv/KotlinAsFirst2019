@@ -193,7 +193,7 @@ Basic, Ruby, Swift.
     fun transliterate() {
         transliterate(
             "input/trans_in1.txt",
-            mapOf('з' to "zz", 'р' to "r", 'д' to "d", 'й' to "y", 'М' to "m", 'и' to "yy", '!' to "!!!"),
+            mapOf('/' to "//", 'р' to "r", 'д' to "d", 'й' to "y", 'М' to "m", 'и' to "yy", '!' to "!!!"),
             "temp.txt"
         )
         assertFileContent("temp.txt", "Zzdrавствуy,\nmyyr!!!")
