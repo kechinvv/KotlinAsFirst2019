@@ -3,7 +3,6 @@
 package lesson6.task1
 
 import lesson2.task2.daysInMonth
-import java.lang.Exception
 import java.lang.IllegalStateException
 import kotlin.IllegalArgumentException
 
