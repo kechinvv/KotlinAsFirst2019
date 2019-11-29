@@ -81,13 +81,14 @@ val month = mapOf(
 )
 
 fun dateStrToDigit(str: String): String {
-    var res = ""
     val time = str.split(" ")
-    if (time.size == 3 && time[1] in month && "[0-9]+".toRegex().matches(time[0]) && "[0-9]+".toRegex().matches(time[2])
+    return if (time.size == 3 && time[1] in month && "[0-9]+".toRegex().matches(time[0]) && "[0-9]+".toRegex().matches(
+            time[2]
+        )
         && time[0].toInt() in 1..daysInMonth(month[time[1]] ?: error(""), time[2].toInt())
     )
-        res = String.format("%02d.%02d.%d", time[0].toInt(), month[time[1]], time[2].toInt())
-    return res
+        String.format("%02d.%02d.%d", time[0].toInt(), month[time[1]], time[2].toInt())
+    else ""
 }
 
 /**
@@ -108,12 +109,11 @@ val month1 = mapOf(
 
 fun dateDigitToStr(digital: String): String {
     val time = digital.split(".")
-    var res = ""
-    if (time.size == 3 && "[0-9]+".toRegex().matches(time[0]) && "[0-9]+".toRegex().matches(time[2]) &&
+    return if (time.size == 3 && "[0-9]+".toRegex().matches(time[0]) && "[0-9]+".toRegex().matches(time[2]) &&
         time[1].toInt() in month1 && time[0].toInt() <= daysInMonth(time[1].toInt(), time[2].toInt())
     )
-        res = String.format("%d %s %d", time[0].toInt(), month1[time[1].toInt()] ?: error(""), time[2].toInt())
-    return res
+        String.format("%d %s %d", time[0].toInt(), month1[time[1].toInt()] ?: error(""), time[2].toInt())
+    else ""
 }
 
 /**
@@ -152,13 +152,11 @@ fun flattenPhoneNumber(phone: String): String {
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
 fun bestLongJump(jumps: String): Int {
-    var res = -1
-    if ("^[0-9]+(( [-%])* [0-9]+)*".toRegex().matches(jumps)) {
+    return if ("^[0-9]+(( [-%])* [0-9]+)*".toRegex().matches(jumps)) {
         val format = "[- %]+".toRegex().replace(jumps, " ")
         val list = format.split(" ").map { it.toInt() }
-        res = list.maxBy { it }!!
-    }
-    return res
+        list.maxBy { it }!!
+    } else -1
 }
 
 /**
@@ -190,12 +188,11 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    if ("^([0-9]+)( [+-] [0-9]+)*".toRegex().matches(expression)) {
-        var str = "( \\+)".toRegex().replace(expression, "")
-        str = "(- )".toRegex().replace(str, "-")
-        val res = str.split(" ")
-        return res.sumBy { it.toInt() }
-    } else throw IllegalArgumentException()
+    if (!"^([0-9]+)( [+-] [0-9]+)*".toRegex().matches(expression)) throw IllegalArgumentException()
+    var str = "( \\+)".toRegex().replace(expression, "")
+    str = "(- )".toRegex().replace(str, "-")
+    val res = str.split(" ")
+    return res.sumBy { it.toInt() }
 }
 
 /**

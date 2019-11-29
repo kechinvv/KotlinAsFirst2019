@@ -2,9 +2,7 @@
 
 package lesson7.task1
 
-import ru.spbstu.wheels.tail
 import java.io.File
-import java.nio.charset.Charset
 
 /**
  * Пример
@@ -59,13 +57,12 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
     val out = mutableMapOf<String, Int>()
     for (i in substrings) out[i] = 0
     var str: String
-    var line: String
     for ((i, v) in out)
         for (j in File(inputName).bufferedReader().readLines()) {
             str = j.toLowerCase()
             while (str.contains(i.toLowerCase())) {
                 if (str.substring(0, i.length) == i.toLowerCase()) out[i] = out[i]!! + 1
-                str = "^.".toRegex().replace(str, "")
+                str = str.removeRange(0..0)
             }
         }
     return out
@@ -87,18 +84,12 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  */
 fun sibilants(inputName: String, outputName: String) {
     val out = File(outputName).bufferedWriter()
-    val reg = "(?<=[ЖжШшЧчЩщ])"
+    val set = setOf<Char>('Ж', 'ж', 'Ш', 'ш', 'Ч', 'ч', 'Щ', 'щ')
+    val map = mapOf<Char, Char>('Ы' to 'И', 'ы' to 'и', 'Я' to 'А', 'я' to 'а', 'ю' to 'у', 'Ю' to 'У')
     for (line in File(inputName).bufferedReader().readLines()) {
-        var right = line
-        right = "$reg[Ы]".toRegex().replace(right, "И")
-        right = "$reg[ы]".toRegex().replace(right, "и")
-        right = "$reg[Я]".toRegex().replace(right, "А")
-        right = "$reg[я]".toRegex().replace(right, "а")
-        right = "$reg[Ю]".toRegex().replace(right, "У")
-        right = "$reg[ю]".toRegex().replace(right, "у")
-        out.write(
-            right
-        )
+        out.write("${line[0]}")
+        for (l in 1 until line.length)
+            if (line[l - 1] in set && line[l] in map) out.write("${map[line[l]]}") else out.write("${line[l]}")
         out.newLine()
     }
     out.close()
@@ -175,7 +166,7 @@ fun alignFileByWidth(inputName: String, outputName: String) {
         num = 0
         if (line.isNotBlank()) {
             n = max - "\\s+".toRegex().replace(line.trim(), " ").length
-            var words = "\\s+".toRegex().replace(line.trim(), " ").split(" ").map { "${it.trim()} " }
+            val words = "\\s+".toRegex().replace(line.trim(), " ").split(" ").map { "${it.trim()} " }
                 .toMutableList()
             words[words.size - 1] = words[words.size - 1].trim()
             if (words.size != 1) {
@@ -262,7 +253,7 @@ fun top20Words(inputName: String): Map<String, Int> {
  */
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
     val out = File(outputName).bufferedWriter()
-    var line = File(inputName).bufferedReader().readText()
+    val line = File(inputName).bufferedReader().readText()
     val list = line.toList().map { it.toString() }.toMutableList()
     for (i in line.indices)
         when {
@@ -675,7 +666,6 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     val out = File(outputName).bufferedWriter()
     var space = ""
-    val res = lhv / rhv
     var k = 0
     var def = ""
     var current = lhv.toString()[k].toString()
@@ -688,9 +678,9 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     out.newLine()
     if (current.length != (current.toInt() / rhv * rhv).toString().length)
         space += " ".repeat(current.length - (current.toInt() / rhv * rhv).toString().length - 1)
-    var spaceres = ""
-    spaceres += " ".repeat(lhv.toString().length - current.toInt().toString().length + 3)
-    out.write("$space-${current.toInt() / rhv * rhv}$spaceres$res")
+    def += " ".repeat(lhv.toString().length - current.toInt().toString().length + 3)
+    out.write("$space-${current.toInt() / rhv * rhv}$def${lhv / rhv}")
+    def = ""
     def += if (current.length == (current.toInt() / rhv * rhv).toString().length)
         "-".repeat(current.length + 1)
     else
