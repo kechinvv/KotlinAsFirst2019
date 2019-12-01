@@ -130,7 +130,7 @@ fun diameter(vararg points: Point): Segment {
  */
 fun circleByDiameter(diameter: Segment): Circle =
     Circle(
-        Point(abs(diameter.begin.x - diameter.end.x) / 2, abs(diameter.begin.y - diameter.end.y) / 2),
+        Point((diameter.begin.x + diameter.end.x) / 2, (diameter.begin.y + diameter.end.y) / 2),
         diameter.begin.distance(diameter.end) / 2
     )
 
@@ -180,8 +180,8 @@ class Line(val b: Double, val angle: Double) {
  * Построить прямую по отрезку
  */
 fun lineBySegment(s: Segment): Line {
-    var a = (atan((s.begin.y - s.end.y) / (s.begin.x - s.end.x)) % PI)
-    if (a < 0) a += PI
+    var a = atan((s.begin.y - s.end.y) / (s.begin.x - s.end.x)) % PI
+    if (a < 0) a = (a + PI) % PI
     val b = s.begin.y * cos(a) - s.begin.x * sin(a)
     return Line(b, a)
 }
