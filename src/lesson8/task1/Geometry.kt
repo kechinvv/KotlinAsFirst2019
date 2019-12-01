@@ -157,7 +157,7 @@ class Line(val b: Double, val angle: Double) {
         val x =
             (other.b * cos(angle) - b * cos(other.angle)) / (cos(other.angle) * sin(angle) - cos(angle) * sin(other.angle))
         val y =
-            if (cos(angle) < 1e-5) (x * sin(other.angle) + other.b) / cos(other.angle) else (x * sin(angle) + b) / cos(
+            if (abs(cos(angle)) < 1e-5) (x * sin(other.angle) + other.b) / cos(other.angle) else (x * sin(angle) + b) / cos(
                 angle
             )
         return Point(x, y)
