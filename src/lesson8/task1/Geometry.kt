@@ -130,8 +130,8 @@ fun diameter(vararg points: Point): Segment {
  */
 fun circleByDiameter(diameter: Segment): Circle =
     Circle(
-        Point((diameter.begin.x + diameter.end.x) / 2, (diameter.begin.y + diameter.end.y) / 2),
-        diameter.begin.distance(diameter.end) / 2
+        Point((diameter.begin.x + diameter.end.x) / 2.0, (diameter.begin.y + diameter.end.y) / 2.0),
+        diameter.begin.distance(diameter.end) / 2.0
     )
 
 /**
@@ -200,8 +200,8 @@ fun lineByPoints(a: Point, b: Point): Line = lineBySegment(Segment(a, b))
  */
 fun bisectorByPoints(a: Point, b: Point): Line {
     val first = lineByPoints(a, b)
-    val p = Point((a.x + b.x) / 2, (a.y + b.y) / 2)
-    val ang = (first.angle + PI / 2) % PI
+    val p = Point((a.x + b.x) / 2.0, (a.y + b.y) / 2.0)
+    val ang = (first.angle + PI / 2.0) % PI
     val b2 = p.y * cos(ang) - p.x * sin(ang)
     return Line(b2, ang)
 }
@@ -277,7 +277,7 @@ fun minContainingCircle(vararg points: Point): Circle {
         }
     for (x in points)
         for (y in points)
-            for (z in points) {
+            for (z in points)
                 if (x != y && x != z && y != z) {
                     flag = 0
                     c = circleByThreePoints(x, y, z)
@@ -290,6 +290,5 @@ fun minContainingCircle(vararg points: Point): Circle {
                         out = c
                     }
                 }
-            }
     return out
 }
