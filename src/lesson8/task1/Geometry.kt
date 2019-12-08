@@ -155,8 +155,8 @@ class Line(val b: Double, val angle: Double) {
     fun crossPoint(other: Line): Point {
         val x = (other.b * cos(angle) - b * cos(other.angle)) /
                 (cos(other.angle) * sin(angle) - cos(angle) * sin(other.angle))
-        val y = if (abs(angle - PI / 2) < 1e-5)
-                (x * sin(other.angle) + other.b) / cos(other.angle) else (x * sin(angle) + b) / cos(angle)
+        val y = (b * sin(other.angle) - other.b * sin(angle)) /
+                (cos(angle) * sin(other.angle) - cos(other.angle) * sin(angle))
         return Point(x, y)
     }
 
