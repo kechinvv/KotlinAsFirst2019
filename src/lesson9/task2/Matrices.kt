@@ -3,6 +3,7 @@
 package lesson9.task2
 
 import lesson9.task1.Matrix
+import lesson9.task1.MatrixImpl
 import lesson9.task1.createMatrix
 
 // Все задачи в этом файле требуют наличия реализации интерфейса "Матрица" в Matrix.kt
@@ -60,7 +61,48 @@ operator fun Matrix<Int>.plus(other: Matrix<Int>): Matrix<Int> {
  * 10 11 12  5
  *  9  8  7  6
  */
-fun generateSpiral(height: Int, width: Int): Matrix<Int> = TODO()
+fun generateSpiral(height: Int, width: Int): Matrix<Int> {
+    var count = 0
+    var i = 0
+    var j = 0
+    val mat = MatrixImpl(height, width, 0)
+    fun chek(i: Int, j: Int): Boolean = i <= height - 1 && j <= width - 1 && i >= 0 && j >= 0
+    while (count != height * width) {
+        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
+            count++
+            mat[i, j] = count
+            j++
+        }
+        j--
+        if (!chek(i, j)) break
+        i++
+        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
+            count++
+            mat[i, j] = count
+            i++
+        }
+        i--
+        if (!chek(i, j)) break
+        j--
+        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
+            count++
+            mat[i, j] = count
+            j--
+        }
+        j++
+        if (!chek(i, j)) break
+        i--
+        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
+            count++
+            mat[i, j] = count
+            i--
+        }
+        i++
+        if (!chek(i, j)) break
+        j++
+    }
+    return mat
+}
 
 /**
  * Сложная
@@ -76,7 +118,50 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> = TODO()
  *  1  2  2  2  2  1
  *  1  1  1  1  1  1
  */
-fun generateRectangles(height: Int, width: Int): Matrix<Int> = TODO()
+fun generateRectangles(height: Int, width: Int): Matrix<Int> {
+    var count = 0
+    var i = 0
+    var j = 0
+    var one = 0
+    val mat = MatrixImpl(height, width, 0)
+    fun chek(i: Int, j: Int): Boolean = i <= height - 1 && j <= width - 1 && i >= 0 && j >= 0
+    while (count != height * width) {
+        one++
+        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
+            count++
+            mat[i, j] = one
+            j++
+        }
+        j--
+        if (!chek(i, j)) break
+        i++
+        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
+            count++
+            mat[i, j] = one
+            i++
+        }
+        i--
+        if (!chek(i, j)) break
+        j--
+        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
+            count++
+            mat[i, j] = one
+            j--
+        }
+        j++
+        if (!chek(i, j)) break
+        i--
+        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
+            count++
+            mat[i, j] = one
+            i--
+        }
+        i++
+        if (!chek(i, j)) break
+        j++
+    }
+    return mat
+}
 
 /**
  * Сложная
@@ -119,7 +204,22 @@ fun <E> rotate(matrix: Matrix<E>): Matrix<E> = TODO()
  * 1 2 3
  * 3 1 2
  */
-fun isLatinSquare(matrix: Matrix<Int>): Boolean = TODO()
+fun isLatinSquare(matrix: Matrix<Int>): Boolean {
+    if (matrix.height != matrix.width) return false
+    for (i in 0 until matrix.width) {
+        val set = mutableSetOf<Int>()
+        for (j in 0 until matrix.height)
+            if (matrix[i, j] !in 1..matrix.width) return false else set.add(matrix[i, j])
+        if (set.size != matrix.height) return false
+    }
+    for (i in 0 until matrix.height) {
+        val set = mutableSetOf<Int>()
+        for (j in 0 until matrix.width)
+            if (matrix[j, i] !in 1..matrix.width) return false else set.add(matrix[j, i])
+        if (set.size != matrix.height) return false
+    }
+return true
+}
 
 /**
  * Средняя

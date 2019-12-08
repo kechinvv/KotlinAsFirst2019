@@ -2,10 +2,9 @@
 
 package lesson8.task1
 
-import kotlinx.html.P
 import lesson1.task1.sqr
-import ru.spbstu.wheels.NegativeInfinity
 import kotlin.math.*
+import kotlin.system.exitProcess
 
 /**
  * Точка на плоскости
@@ -79,7 +78,8 @@ data class Circle(val center: Point, val radius: Double) {
      * Расстояние между пересекающимися окружностями считать равным 0.0.
      */
     fun distance(other: Circle): Double =
-        if (this.center.distance(other.center) > this.radius + other.radius) this.center.distance(other.center) - this.radius - other.radius
+        if (this.center.distance(other.center) - this.radius - other.radius > 1e-5)
+            this.center.distance(other.center) - this.radius - other.radius
         else 0.0
 
 
@@ -155,9 +155,15 @@ class Line(val b: Double, val angle: Double) {
      */
     fun crossPoint(other: Line): Point {
         val x =
-            (other.b * cos(angle) - b * cos(other.angle)) / (cos(other.angle) * sin(angle) - cos(angle) * sin(other.angle))
+            (other.b * cos(angle) - b * cos(other.angle)) /
+                    (cos(other.angle) * sin(angle) - cos(angle) * sin(other.angle))
         val y =
-            if (abs(cos(angle)) < 1e-5) (x * sin(other.angle) + other.b) / cos(other.angle) else (x * sin(angle) + b) / cos(
+            if (abs(
+                    (x * sin(angle) + b) / cos(
+                        angle
+                    )
+                ) < 1e-5
+            ) (x * sin(other.angle) + other.b) / cos(other.angle) else (x * sin(angle) + b) / cos(
                 angle
             )
         return Point(x, y)
@@ -214,16 +220,14 @@ fun bisectorByPoints(a: Point, b: Point): Line {
  */
 fun findNearestCirclePair(vararg circles: Circle): Pair<Circle, Circle> {
     if (circles.size < 2) throw IllegalArgumentException()
-    else {
-        var min = Double.POSITIVE_INFINITY
-        var out = circles[0] to circles[1]
-        for (i in circles)
-            for (j in circles) if (i != j && i.distance(j) < min) {
-                min = i.distance(j)
-                out = i to j
-            }
-        return out
-    }
+    var min = Double.POSITIVE_INFINITY
+    var out = circles[0] to circles[1]
+    for (i in circles)
+        for (j in circles) if (i != j && i.distance(j) < min) {
+            min = i.distance(j)
+            out = i to j
+        }
+    return out
 }
 
 /**
@@ -255,21 +259,19 @@ fun circleByThreePoints(a: Point, b: Point, c: Point): Circle {
 fun minContainingCircle(vararg points: Point): Circle {
     if (points.isEmpty()) throw IllegalArgumentException()
     if (points.size == 1) return Circle(points[0], 0.0)
-    if (points.size == 2) return circleByDiameter(Segment(points[0], points[1]))
     var c: Circle
-    var flag = 0
     var min = Double.POSITIVE_INFINITY
     var out = Circle(Point(0.0, 0.0), 0.0)
     for (x in points)
         for (y in points) {
             if (x != y) {
-                flag = 0
+                var flag = true
                 c = circleByDiameter(Segment(x, y))
                 for (j in points) if (!c.contains(j)) {
-                    flag = 1
+                    flag = false
                     break
                 }
-                if (flag == 0 && c.radius < min) {
+                if (flag && c.radius < min) {
                     min = c.radius
                     out = c
                 }
@@ -279,13 +281,13 @@ fun minContainingCircle(vararg points: Point): Circle {
         for (y in points)
             for (z in points)
                 if (x != y && x != z && y != z) {
-                    flag = 0
+                    var flag = true
                     c = circleByThreePoints(x, y, z)
                     for (j in points) if (!c.contains(j)) {
-                        flag = 1
+                        flag = false
                         break
                     }
-                    if (flag == 0 && c.radius < min) {
+                    if (flag && c.radius < min) {
                         min = c.radius
                         out = c
                     }

@@ -56,15 +56,15 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
 fun countSubstrings(inputName: String, substrings: List<String>): Map<String, Int> {
     val out = mutableMapOf<String, Int>()
     for (i in substrings) out[i] = 0
-    var str: String
-    for ((i, v) in out)
-        for (j in File(inputName).bufferedReader().readLines()) {
-            str = j.toLowerCase()
-            while (str.contains(i.toLowerCase())) {
-                if (str.substring(0, i.length) == i.toLowerCase()) out[i] = out[i]!! + 1
-                str = str.removeRange(0..0)
-            }
+
+    val str = File(inputName).bufferedReader().readText().toLowerCase()
+    for ((i, v) in out) {
+        var k = 0
+        while (str.substring(k).contains(i.toLowerCase())) {
+            if (str.substring(k, k + i.length) == i.toLowerCase()) out[i] = out[i]!! + 1
+            k++
         }
+    }
     return out
 }
 
@@ -84,8 +84,8 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
  */
 fun sibilants(inputName: String, outputName: String) {
     val out = File(outputName).bufferedWriter()
-    val set = setOf<Char>('Ж', 'ж', 'Ш', 'ш', 'Ч', 'ч', 'Щ', 'щ')
-    val map = mapOf<Char, Char>('Ы' to 'И', 'ы' to 'и', 'Я' to 'А', 'я' to 'а', 'ю' to 'у', 'Ю' to 'У')
+    val set = setOf('Ж', 'ж', 'Ш', 'ш', 'Ч', 'ч', 'Щ', 'щ')
+    val map = mapOf('Ы' to 'И', 'ы' to 'и', 'Я' to 'А', 'я' to 'а', 'ю' to 'у', 'Ю' to 'У')
     for (line in File(inputName).bufferedReader().readLines()) {
         out.write("${line[0]}")
         for (l in 1 until line.length)
@@ -254,18 +254,18 @@ fun top20Words(inputName: String): Map<String, Int> {
 fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: String) {
     val out = File(outputName).bufferedWriter()
     val line = File(inputName).bufferedReader().readText()
-    val list = line.toList().map { it.toString() }.toMutableList()
-    for (i in line.indices)
+    val list = mutableListOf<String>()
+    for (i in line)
         when {
-            line[i].toUpperCase() in dictionary -> {
-                list[i] = (dictionary[line[i].toUpperCase()] ?: error("")).toLowerCase()
-                if (line[i] != line[i].toLowerCase()) list[i] = list[i].capitalize()
+            i.toUpperCase() in dictionary -> {
+                list.add((dictionary[i.toUpperCase()] ?: error("")).toLowerCase())
+                if (i != i.toLowerCase()) list[list.size - 1] = list.last().capitalize()
             }
-            line[i].toLowerCase() in dictionary -> {
-                list[i] = (dictionary[line[i].toLowerCase()] ?: error("")).toLowerCase()
-                if (line[i] != line[i].toLowerCase()) list[i] = list[i].capitalize()
+            i.toLowerCase() in dictionary -> {
+                list.add((dictionary[i.toLowerCase()] ?: error("")).toLowerCase())
+                if (i != i.toLowerCase()) list[list.size - 1] = list.last().capitalize()
             }
-            else -> list[i] = line[i].toString()
+            else -> list.add(i.toString())
         }
     out.write(list.fold("") { a, b -> a + b })
     out.newLine()
@@ -298,20 +298,20 @@ fun transliterate(inputName: String, dictionary: Map<Char, String>, outputName: 
  */
 fun chooseLongestChaoticWord(inputName: String, outputName: String) {
     var max = Int.MIN_VALUE
-    var set = mutableListOf<String>()
+    var list = mutableListOf<String>()
     val out = File(outputName).bufferedWriter()
     for (line in File(inputName).bufferedReader().readLines()) when {
         (line.toLowerCase().toCharArray().toSet().size > max &&
                 line.toLowerCase().toCharArray().toSet().size == line.length
                 ) -> {
             max = line.toLowerCase().toCharArray().toSet().size
-            set = mutableListOf(line)
+            list = mutableListOf(line)
         }
         (line.toLowerCase().toCharArray().toSet().size == max &&
                 line.toLowerCase().toCharArray().toSet().size == line.length
-                ) -> set.add(line)
+                ) -> list.add(line)
     }
-    out.write(set.toString().substring(1, set.toString().length - 1))
+    out.write(list.toString().substring(1, list.toString().length - 1))
     out.close()
 }
 
@@ -664,27 +664,24 @@ fun printMultiplicationProcess(lhv: Int, rhv: Int, outputName: String) {
  *
  */
 fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
-    val out = File(outputName).bufferedWriter()
-    var space = ""
     var k = 0
-    var def = ""
     var current = lhv.toString()[k].toString()
     while (current.toInt() < rhv && k != lhv.toString().length - 1) {
         k++
         current += lhv.toString()[k]
     }
+    val out = File(outputName).bufferedWriter()
     if (current.length == (current.toInt() / rhv * rhv).toString().length) out.write(" ")
     out.write("$lhv | $rhv")
     out.newLine()
-    if (current.length != (current.toInt() / rhv * rhv).toString().length)
-        space += " ".repeat(current.length - (current.toInt() / rhv * rhv).toString().length - 1)
-    def += " ".repeat(lhv.toString().length - current.toInt().toString().length + 3)
-    out.write("$space-${current.toInt() / rhv * rhv}$def${lhv / rhv}")
-    def = ""
-    def += if (current.length == (current.toInt() / rhv * rhv).toString().length)
-        "-".repeat(current.length + 1)
-    else
-        "-".repeat(current.length)
+    var space = if (current.length != (current.toInt() / rhv * rhv).toString().length)
+        "".padEnd(current.length - (current.toInt() / rhv * rhv).toString().length - 1, ' ') else ""
+    out.write(
+        "$space-${current.toInt() / rhv * rhv}" +
+                "${"".padEnd(lhv.toString().length - current.toInt().toString().length + 3, ' ')}${lhv / rhv}"
+    )
+    var def = "".padEnd(current.length, '-')
+    if (current.length == (current.toInt() / rhv * rhv).toString().length) def += '-'
     out.newLine()
     out.write(def)
     out.newLine()
@@ -703,10 +700,8 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
             minus += " ".repeat(current.length - (current.toInt() / rhv * rhv).toString().length - 1)
         if (current.length == (current.toInt() / rhv * rhv).toString().length)
             space2 = space.substring(0..space.length - 2)
-        def += if (current.length == (current.toInt() / rhv * rhv).toString().length)
-            "-".repeat(current.length + 1)
-        else
-            "-".repeat(current.length)
+        def = "".padEnd(current.length, '-')
+        if (current.length == (current.toInt() / rhv * rhv).toString().length) def += '-'
         out.write("$space2$minus-${current.toInt() / rhv * rhv}")
         out.newLine()
         out.write("$space2$def")
