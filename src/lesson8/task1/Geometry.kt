@@ -77,7 +77,7 @@ data class Circle(val center: Point, val radius: Double) {
      * Расстояние между пересекающимися окружностями считать равным 0.0.
      */
     fun distance(other: Circle): Double =
-        if (this.center.distance(other.center) - this.radius - other.radius > 1e-5)
+        if (this.center.distance(other.center) > this.radius + other.radius)
             this.center.distance(other.center) - this.radius - other.radius
         else 0.0
 
@@ -87,7 +87,7 @@ data class Circle(val center: Point, val radius: Double) {
      *
      * Вернуть true, если и только если окружность содержит данную точку НА себе или ВНУТРИ себя
      */
-    fun contains(p: Point): Boolean = p.distance(center) <= radius
+    fun contains(p: Point): Boolean = p.distance(center) - radius <= 1e-5
 }
 
 /**
