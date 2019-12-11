@@ -687,7 +687,6 @@ fun printDivisionProcess(lhv: Int, rhv: Int, outputName: String) {
     out.newLine()
     space = if (current.length == (current.toInt() / rhv * rhv).toString().length) " " else ""
     while (k != lhv.toString().length - 1) {
-        def = ""
         space += " ".repeat(current.length - (current.toInt() % rhv).toString().length)
         current = (current.toInt() % rhv).toString()
         k++
