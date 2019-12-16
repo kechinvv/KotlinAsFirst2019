@@ -64,42 +64,26 @@ operator fun Matrix<Int>.plus(other: Matrix<Int>): Matrix<Int> {
 fun generateSpiral(height: Int, width: Int): Matrix<Int> {
     var count = 0
     var i = 0
-    var j = 0
+    var j = -1
+    var k = true
     val mat = MatrixImpl(height, width, 0)
-    fun chek(i: Int, j: Int): Boolean = i <= height - 1 && j <= width - 1 && i >= 0 && j >= 0
+    fun check(i: Int, j: Int): Boolean = i <= height - 1 && j <= width - 1 && i >= 0 && j >= 0
     while (count != height * width) {
-        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
-            count++
-            mat[i, j] = count
-            j++
+        count++
+        if (k) when {
+            check(i, j + 1) && mat[i, j + 1] == 0 -> j++
+            check(i + 1, j) && mat[i + 1, j] == 0 -> i++
+            else -> k = false
         }
-        j--
-        if (!chek(i, j)) break
-        i++
-        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
-            count++
-            mat[i, j] = count
-            i++
+        if (!k) when {
+            check(i, j - 1) && mat[i, j - 1] == 0 -> j--
+            check(i - 1, j) && mat[i - 1, j] == 0 -> i--
+            else -> {
+                k = true
+                j++
+            }
         }
-        i--
-        if (!chek(i, j)) break
-        j--
-        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
-            count++
-            mat[i, j] = count
-            j--
-        }
-        j++
-        if (!chek(i, j)) break
-        i--
-        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
-            count++
-            mat[i, j] = count
-            i--
-        }
-        i++
-        if (!chek(i, j)) break
-        j++
+        mat[i, j] = count
     }
     return mat
 }
@@ -121,44 +105,28 @@ fun generateSpiral(height: Int, width: Int): Matrix<Int> {
 fun generateRectangles(height: Int, width: Int): Matrix<Int> {
     var count = 0
     var i = 0
-    var j = 0
-    var one = 0
+    var j = -1
+    var mean = 1
+    var k = true
     val mat = MatrixImpl(height, width, 0)
-    fun chek(i: Int, j: Int): Boolean = i <= height - 1 && j <= width - 1 && i >= 0 && j >= 0
+    fun check(i: Int, j: Int): Boolean = i <= height - 1 && j <= width - 1 && i >= 0 && j >= 0
     while (count != height * width) {
-        one++
-        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
-            count++
-            mat[i, j] = one
-            j++
+        count++
+        if (k) when {
+            check(i, j + 1) && mat[i, j + 1] == 0 -> j++
+            check(i + 1, j) && mat[i + 1, j] == 0 -> i++
+            else -> k = false
         }
-        j--
-        if (!chek(i, j)) break
-        i++
-        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
-            count++
-            mat[i, j] = one
-            i++
+        if (!k) when {
+            check(i, j - 1) && mat[i, j - 1] == 0 -> j--
+            check(i - 1, j) && mat[i - 1, j] == 0 -> i--
+            else -> {
+                k = true
+                j++
+                mean++
+            }
         }
-        i--
-        if (!chek(i, j)) break
-        j--
-        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
-            count++
-            mat[i, j] = one
-            j--
-        }
-        j++
-        if (!chek(i, j)) break
-        i--
-        while (chek(i, j) && mat[i, j] == 0 && count != height * width) {
-            count++
-            mat[i, j] = one
-            i--
-        }
-        i++
-        if (!chek(i, j)) break
-        j++
+        mat[i, j] = mean
     }
     return mat
 }
@@ -207,18 +175,16 @@ fun <E> rotate(matrix: Matrix<E>): Matrix<E> = TODO()
 fun isLatinSquare(matrix: Matrix<Int>): Boolean {
     if (matrix.height != matrix.width) return false
     for (i in 0 until matrix.width) {
-        val set = mutableSetOf<Int>()
+        var set = mutableSetOf<Int>()
         for (j in 0 until matrix.height)
             if (matrix[i, j] !in 1..matrix.width) return false else set.add(matrix[i, j])
         if (set.size != matrix.height) return false
-    }
-    for (i in 0 until matrix.height) {
-        val set = mutableSetOf<Int>()
+        set = mutableSetOf()
         for (j in 0 until matrix.width)
             if (matrix[j, i] !in 1..matrix.width) return false else set.add(matrix[j, i])
-        if (set.size != matrix.height) return false
+        if (set.size != matrix.width) return false
     }
-return true
+    return true
 }
 
 /**
